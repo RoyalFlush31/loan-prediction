@@ -1,16 +1,19 @@
 import pandas as pd
 import json
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 data = pd.read_csv("LoanPrediction.csv")
-print(f"Datalänge: {len(data)}")
-print(f'Loan Declines: {len(data.Loan_Status.loc[data.Loan_Status == "N"])}')
-print(f'Loan Approvals: {len(data.Loan_Status.loc[data.Loan_Status == "Y"])}')
-print(f'Data Columns: {data.columns}')
-
-#pdata = pd.pivot_table(data[data.Loan_Status=='Y'], index = 'Gender', values = 'Loan_ID', aggfunc = 'sum')
-#print(pdata)
-print(data.loc[(data.Loan_Status == "Y")&(data.Gender == "Female")])
 
 
-#for i in range(len(data.columns)-1):
-    #print(data[data.columns[i]])
+print(f"Length: {len(data)}")
+print(f'Loan Declines: {len(data.loc[data.Loan_Status == "N"])}')
+print(f'Loan Approvals: {len(data.loc[data.Loan_Status == "Y"])}')
+print(f'Column Names: {data.columns}')
+print(f'Column Distinct Values: {data.loc[data.Loan_Status == "Y"].nunique()}')
+
+
+data["Loan_Status"].replace({"Y": 0, "N": 1}, inplace=True)
+sns.set(style="ticks")
+sns.pairplot(data, hue="Loan_Status")
+plt.show()
+
