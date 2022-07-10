@@ -1,5 +1,7 @@
 import pandas as pd
 from sklearn.utils import resample
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import LabelEncoder
@@ -70,10 +72,49 @@ def partion(data):
     Y = data['Loan_Status']
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y,
                                                         stratify=Y, test_size=0.25, random_state=0)
+    print(len(X_train), len(X_test), len(Y_train), len(Y_test))
+
+def Knearest(data):
+    X = data.drop('Loan_Status', axis=1)
+    Y = data['Loan_Status']
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y,
+                                                        stratify=Y, test_size=0.25, random_state=0)
+    report = pd.DataFrame(columns=['Model', 'Acc.Train', 'Acc.Test'])
+
+    # To build the classifier
+    knnmodel = KNeighborsClassifier(n_neighbors=7)
+    knnmodel.fit(X_train, Y_train)
+    Y_train_pred = knnmodel.predict(X_train)
+
+    # To examine the quality of the classifier we can calculate the confusion matrix (reference/prediction) and the accuracy
+    cmtr = confusion_matrix(Y_train, Y_train_pred)
+    print("Confusion Matrix Training:\n", cmtr)
+    acctr = accuracy_score(Y_train, Y_train_pred)
+    print("Accurray Training:", acctr)
+
+    # To test the generalizability of the classifier, it must be applied to the test data
+    Y_test_pred = knnmodel.predict(X_test)
+    cmte = confusion_matrix(Y_test, Y_test_pred)
+    print("Confusion Matrix Testing:\n", cmte)
+    accte = accuracy_score(Y_test, Y_test_pred)
+    print("Accurray Test:", accte)
+    Y_test_pred = knnmodel.predict_proba(X_test)
+    #print(Y_test_pred)
+
+    # To find the optimal value for k, we try different k’s using a loop and print the results
+    accuracies = []
+    for k in range(1, 21):
+        knnmodel = KNeighborsClassifier(n_neighbors=k)
+        knnmodel.fit(X_train, Y_train)
+        Y_test_pred = knnmodel.predict(X_test)
+        accte = accuracy_score(Y_test, Y_test_pred)
+        print(k, accte)
+        accuracies.append(accte)
 
 
 data = process(sample(data))
-print(data)
+#print(data)
+Knearest(data)
 #analyze(data)
 #show(data)
 
