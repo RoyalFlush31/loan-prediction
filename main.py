@@ -112,7 +112,7 @@ def Knearest(data):
 
     # in case of indifference (yes/no) which can appear with even numbers, the algorithm chooses the solution randomly
 
-    opt_k = 9 #manuelle eingefügt 
+    opt_k = 9 #manuelle eingefügt
     print('Optimal k =', opt_k)
 
     accte = accuracy_score(Y_test, Y_test_pred)
@@ -130,12 +130,12 @@ def Knearest(data):
 
     # calculate ROC and AUC and plot the curve
     Y_probs = knnmodel.predict_proba(X_test)
-    print(Y_probs[0:6, :])
-    Y_test_probs = np.array(np.where(Y_test == 'yes', 1, 0))
-    print(Y_test_probs[0:6])
+    print("Y_probs:", Y_probs[0:6, :])
+    Y_test_probs = np.array(np.where(Y_test == 1, 1, 0))
+    print("Y_test_probs:", Y_test_probs[0:6])
     from sklearn.metrics import roc_curve
     fpr, tpr, threshold = roc_curve(Y_test_probs, Y_probs[:, 1])
-    print(fpr, tpr, threshold)
+    print("fpr:",fpr, "tpr:", tpr,"threshold:", threshold)
     from sklearn.metrics import auc
     roc_auc = auc(fpr, tpr)
     print("roc and auc:",roc_auc)
