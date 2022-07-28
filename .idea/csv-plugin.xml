@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="/LoanPrediction.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="C:\Users\tf_02\OneDrive\Desktop\Frankfurt + Uni\6 Semester\Data Analysis using Machine lerning\LasagnaTriers\LasagnaTriers.csv">
           <value>
             <Attribute>

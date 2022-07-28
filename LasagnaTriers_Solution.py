@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, confusion_matrix
 
 
-os.chdir("C:\Users\tf_02\OneDrive\Desktop\Frankfurt + Uni\6 Semester\Data Analysis using Machine lerning\LasagnaTriers")
+os.chdir("/Users/lennert/Documents/20190901_Frakfurt School/20220510_FS_System_Development/Dice-game/loan-prediction")
 data_ori = pd.read_csv('LasagnaTriers.csv')
 print(data_ori.shape)
 # types
