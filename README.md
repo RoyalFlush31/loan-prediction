@@ -11,7 +11,8 @@ The data to create the model is stored in the file "LoanPrediction.csv". It cont
 - Gender: Male/ Female 
 - Married: Applicant married (Y/N) 
 - Dependents: Number of dependents 
-- Education: Applicant Education (Graduate/ Under Graduate)  Self_Employed: Self employed (Y/N) 
+- Education: Applicant Education (Graduate/ Under Graduate) 
+- Self_Employed: Self employed (Y/N) 
 - ApplicantIncome: Applicant income 
 - CoapplicantIncome: Coapplicant income 
 - LoanAmount: Loan amount in thousands 
