@@ -7,6 +7,7 @@ import seaborn as sns
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import numpy as np
+import sklearn as sk
 data = pd.read_csv("LoanPrediction.csv")
 
 def sample(data):
@@ -155,6 +156,56 @@ def Knearest(data):
     print("Accurray Test:", accte)
 
     Y_train_pred_prob = etmodel.predict_proba(X_train)
+
+    # find optimal max_depth
+    accuracies = np.zeros((2, 20), float)
+    for k in range(0, 20):
+        etmodel = DecisionTreeClassifier(criterion='entropy', random_state=0, max_depth=k + 1)
+        etmodel.fit(X_train, Y_train)
+        Y_train_pred = etmodel.predict(X_train)
+        acctr = accuracy_score(Y_train, Y_train_pred)
+        accuracies[0, k] = acctr
+        Y_test_pred = etmodel.predict(X_test)
+        accte = accuracy_score(Y_test, Y_test_pred)
+        accuracies[1, k] = accte
+    plt.plot(range(1, 21), accuracies[0, :])
+    plt.plot(range(1, 21), accuracies[1, :])
+    plt.xlim(1, 20)
+    plt.xticks(range(1, 21))
+    plt.xlabel('Max_depth')
+    plt.ylabel('Accuracy')
+    plt.title('Comparison of Accuracies (Entropy)')
+    plt.show()
+
+    etmodel = DecisionTreeClassifier(criterion='entropy', random_state=0, max_depth=5)
+    etmodel.fit(X_train, Y_train)
+    Y_train_pred = etmodel.predict(X_train)
+    cmtr = confusion_matrix(Y_train, Y_train_pred)
+    print("Confusion Matrix Training:\n", cmtr)
+    acctr = accuracy_score(Y_train, Y_train_pred)
+    print("Accurray Training:", acctr)
+    Y_test_pred = etmodel.predict(X_test)
+    cmte = confusion_matrix(Y_test, Y_test_pred)
+    print("Confusion Matrix Testing:\n", cmte)
+    accte = accuracy_score(Y_test, Y_test_pred)
+    print("Accurray Test:", accte)
+    report.loc[len(report)] = ['Tree (Entropy)', acctr, accte]
+
+    # plot tree
+    from sklearn.tree import plot_tree
+    fig, ax = plt.subplots(figsize=(30, 12))
+    plot_tree(etmodel, feature_names=list(X), filled=True, rounded=True, max_depth=4, fontsize=10)
+    plt.show()
+
+    # plot tree using graphviz
+    import graphviz
+    dot_data = sk.tree.export_graphviz(etmodel, out_file=None,
+                                       feature_names=list(X),
+                                       filled=True, rounded=True,
+                                       special_characters=True)
+    graph = graphviz.Source(dot_data)
+    graph.format = 'png'
+    graph.render("Churn_entropy")
 
 
 data = process(sample(data))
