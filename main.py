@@ -10,12 +10,14 @@ import numpy as np
 data = pd.read_csv("LoanPrediction.csv")
 
 def sample(data):
-    #sample = resample(data, replace=False, n_samples=200, random_state=0)
-    #data = data.dropna(True)
     males = data[data.Gender == 'Male']
     females = data[data.Gender == 'Female']
+    print(males, females)
     sample = resample(males, n_samples=len(females), replace=False, random_state=0)
+    print(sample)
     data = pd.concat([sample, females])
+
+    print('data2:', data)
 
     data['Gender'] = np.where(data['Gender'] == 'Female', 1, 0)
     data['Married'] = np.where(data['Married'] == 'Yes', 1, 0)
@@ -55,6 +57,7 @@ def show(data):
     plt.show()
 
 def process(data):
+    print(data)
     data = data.select_dtypes(exclude=['object'])
     # Standardization
     #data = (data - data.mean()) / data.std()
@@ -64,6 +67,7 @@ def process(data):
     #sns.set(style="ticks")
     #sns.pairplot(data, hue="Loan_Status")
     #plt.show()
+    print(data)
     return data
 
 def partion(data):
@@ -155,7 +159,7 @@ def Knearest(data):
     print("Accurray Test:", accte)
 
     Y_train_pred_prob = etmodel.predict_proba(X_train)
-
+    return Y_train_pred_prob
 
 data = process(sample(data))
 #print(data)

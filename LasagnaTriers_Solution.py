@@ -156,7 +156,7 @@ plt.ylabel('Accuracy')
 plt.title('Comparison of Accuracies')
 plt.show()
 
-opt_k = np.argmax(accuracies ) *2 + 1
+opt_k = np.argmax(accuracies) * 2 + 1
 print('Optimal k =', opt_k)
 
 knnmodel = KNeighborsClassifier(n_neighbors=opt_k)
