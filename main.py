@@ -32,12 +32,6 @@ def sample(data):
 
     return data
 
-def show(data):
-    sns.set(style="ticks")
-    sns.pairplot(data, hue="Loan_Status")
-    #sns.boxplot(data=data, orient="v", palette="Set2")
-    plt.show()
-
 def analyze(data):
     print(f"Length: {len(data)}")
     print(f'Loan Declines | Total {len(data.loc[data.Loan_Status == "N"])}',
@@ -54,6 +48,11 @@ def analyze(data):
 
     show(data)
 
+def show(data):
+    sns.set(style="ticks")
+    sns.pairplot(data, hue="Loan_Status")
+    #sns.boxplot(data=data, orient="v", palette="Set2")
+    plt.show()
 
 def process(data):
     data = data.select_dtypes(exclude=['object'])
