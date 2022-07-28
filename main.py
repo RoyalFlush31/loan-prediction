@@ -197,7 +197,7 @@ def Knearest(data):
     plot_tree(etmodel, feature_names=list(X), filled=True, rounded=True, max_depth=4, fontsize=10)
     plt.show()
 
-    # plot tree using graphviz
+    ''' # plot tree using graphviz
     import graphviz
     dot_data = sk.tree.export_graphviz(etmodel, out_file=None,
                                        feature_names=list(X),
@@ -206,7 +206,7 @@ def Knearest(data):
     graph = graphviz.Source(dot_data)
     graph.format = 'png'
     graph.render("Churn_entropy")
-
+    '''
 
 data = process(sample(data))
 #print(data)
