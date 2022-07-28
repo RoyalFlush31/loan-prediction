@@ -110,6 +110,52 @@ def Knearest(data):
         print(k, accte)
         accuracies.append(accte)
 
+    # in case of indifference (yes/no) which can appear with even numbers, the algorithm chooses the solution randomly
+
+    opt_k = 9 #manuelle eingefügt 
+    print('Optimal k =', opt_k)
+
+    accte = accuracy_score(Y_test, Y_test_pred)
+    report.loc[len(report)] = ['k-NN', acctr, accte]
+    print(report)
+
+    # calculate f1 score
+    from sklearn.preprocessing import LabelEncoder
+    lb_churn = LabelEncoder()
+    Y_test_code = lb_churn.fit_transform(Y_test)
+    Y_test_pred_code = lb_churn.fit_transform(Y_test_pred)
+    from sklearn.metrics import f1_score
+    f1te = f1_score(Y_test_code, Y_test_pred_code)
+    print("F1-score",f1te)
+
+    # calculate ROC and AUC and plot the curve
+    Y_probs = knnmodel.predict_proba(X_test)
+    print(Y_probs[0:6, :])
+    Y_test_probs = np.array(np.where(Y_test == 'yes', 1, 0))
+    print(Y_test_probs[0:6])
+    from sklearn.metrics import roc_curve
+    fpr, tpr, threshold = roc_curve(Y_test_probs, Y_probs[:, 1])
+    print(fpr, tpr, threshold)
+    from sklearn.metrics import auc
+    roc_auc = auc(fpr, tpr)
+    print("roc and auc:",roc_auc)
+
+    from sklearn.tree import DecisionTreeClassifier
+    etmodel = DecisionTreeClassifier(criterion='entropy', random_state=0)
+    etmodel.fit(X_train, Y_train)
+    Y_train_pred = etmodel.predict(X_train)
+    cmtr = confusion_matrix(Y_train, Y_train_pred)
+    print("Confusion Matrix Training:\n", cmtr)
+    acctr = accuracy_score(Y_train, Y_train_pred)
+    print("Accurray Training:", acctr)
+    Y_test_pred = etmodel.predict(X_test)
+    cmte = confusion_matrix(Y_test, Y_test_pred)
+    print("Confusion Matrix Testing:\n", cmte)
+    accte = accuracy_score(Y_test, Y_test_pred)
+    print("Accurray Test:", accte)
+
+    Y_train_pred_prob = etmodel.predict_proba(X_train)
+
 
 data = process(sample(data))
 #print(data)
