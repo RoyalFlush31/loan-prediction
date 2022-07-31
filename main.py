@@ -192,7 +192,6 @@ def user_input(labelEncoder):
 
     #choice = labelEncoder.fit_transform(choice)
 
-
 def decisionTree(X_train, X_test, Y_train, Y_test):
     # find optimal max_depth
     accuracies = np.zeros((2, 20), float)
