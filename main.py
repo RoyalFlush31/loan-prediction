@@ -219,7 +219,7 @@ def decisionTree(X_train, X_test, Y_train, Y_test):
 data = pd.read_csv("LoanPrediction.csv")
 
 # 2. Clean the data
-GN = input("Do you want to conduct the survey gender neutral? (y/n) ")
+GN = input("Do you want to conduct the application gender neutrally? (y/n) ")
 if GN == "y":
     data, labelEncoder = cleanGN(data)
 elif GN == "n":
@@ -235,7 +235,7 @@ ndata = (data - data.min()) / (data.max() - data.min())
 X_train, X_test, Y_train, Y_test = split(ndata, 'Loan_Status')
 
 # 4. Create and train a model
-test = input("Do you want to conduct the survey with the help of kNearest or DecistionTree? We recommend kN (kN/dT) ")
+test = input("Do you want to conduct the application based on kNearest or DecistionTree? We recommend kN (kN/dT) ")
 if test == "kN":
     model = kNearest(X_train, X_test, Y_train, Y_test)
 elif test == "dT":
@@ -245,7 +245,7 @@ else:
     pass
 
 # 5. Measure accuracy (USED FOR TESTING)
-accurancy_faq = input("Do you want to see the accurancy of this survey? (y/n) ")
+accurancy_faq = input("Do you want to see the accurancy of this application? (y/n) ")
 if accurancy_faq == "y":
     accuracy(X_train, X_test, Y_train, Y_test, model)
 else:
