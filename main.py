@@ -132,7 +132,7 @@ def Knearest(X_train, X_test, Y_train, Y_test):
     knnmodel.fit(X_train, Y_train)
     return knnmodel
 
-def accuracy(X_train, X_test, Y_train, Y_test, model, labelEncoder):
+def accuracy(X_train, X_test, Y_train, Y_test, model):
     Y_train_pred = model.predict(X_train)
     Y_test_pred = model.predict(X_test)
 
@@ -144,8 +144,9 @@ def accuracy(X_train, X_test, Y_train, Y_test, model, labelEncoder):
     print("Confusion Matrix Training:\n", cmtr)
     print("Confusion Matrix Testing:\n", cmte)
 
-    Y_test_code = labelEncoder.transform(Y_test)
-    Y_test_pred_code = labelEncoder.transform(Y_test_pred)
+    labelEncoder = LabelEncoder()
+    Y_test_code = labelEncoder.fit_transform(Y_test)
+    Y_test_pred_code = labelEncoder.fit_transform(Y_test_pred)
     f1te = f1_score(Y_test_code, Y_test_pred_code)
 
     report = pd.DataFrame(columns=['Model', 'Acc.Train', 'Acc.Test', 'F1.score'])
@@ -183,7 +184,8 @@ def user_input(labelEncoder):
     user_property_area = input("Where do you live? (Rural, Semiurban, Urban) ")
     choice = np.array([user_gender, user_married, user_dependents, user_graduate, user_self_employed, user_applicant_income,
               user_coapplicant_income, user_loan_amount, user_loan_amount_term, user_credit_history, user_property_area])
-    choice = np.array
+    
+    choice = labelEncoder.fit_transform(choice)
 
 
 
@@ -205,7 +207,7 @@ model = Knearest(X_train, X_test, Y_train, Y_test)
 
 
 # 5. Measure accuracy
-accuracy(X_train, X_test, Y_train, Y_test, model, labelEncoder)
+accuracy(X_train, X_test, Y_train, Y_test, model)
 # 6. Make predictions
 
 result = model.predict([[user_input(labelEncoder)]])
