@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import sklearn as sk
 
-def clean(data):
+def cleanGN(data):
     #sample = resample(data, replace=False, n_samples=200, random_state=0)
     #data = data.dropna(True)
     males = data[data.Gender == 'Male']
@@ -17,6 +17,28 @@ def clean(data):
     sample = resample(males, n_samples=len(females), replace=False, random_state=0)
     data = pd.concat([sample, females])
 
+    data['Gender'] = np.where(data['Gender'] == 'Female', 1, 0)
+    data['Married'] = np.where(data['Married'] == 'Yes', 1, 0)
+    data['Self_Employed'] = np.where(data['Self_Employed'] == 'Yes', 1, 0)
+    data['Loan_Status'] = np.where(data['Loan_Status'] == 'Y', 1, 0)
+
+    lb_Mar = LabelEncoder()
+    data['Dependents'] = lb_Mar.fit_transform(data['Dependents'])
+    data['Education'] = lb_Mar.fit_transform(data['Education'])
+    data['Property_Area'] = lb_Mar.fit_transform(data['Property_Area'])
+
+    data = data.drop(columns="Loan_ID")
+    data = data.fillna(data.mean())
+
+    data = data.select_dtypes(exclude=['object'])
+    # Standardization
+    # data = (data - data.mean()) / data.std()
+    # Normalization
+    data = (data - data.min()) / (data.max() - data.min())
+
+    return data
+
+def clean(data):
     data['Gender'] = np.where(data['Gender'] == 'Female', 1, 0)
     data['Married'] = np.where(data['Married'] == 'Yes', 1, 0)
     data['Self_Employed'] = np.where(data['Self_Employed'] == 'Yes', 1, 0)
@@ -242,17 +264,28 @@ def Knearest(data):
 #analyze(data)
 #show(data)
 
-# 1. Import data
 data = pd.read_csv("LoanPrediction.csv")
+# 1. Import data
+GN = str(input('Please enter if you want the Analysis performed Gender-Neutral? (Y/N)'))
+if GN == 'Y':
+    data = cleanGN(data)
+    Knearest(data)
+elif GN == 'N':
+    data = clean(data)
+    Knearest(data)
+else:
+    print('Input Error')
+
+
 
 # 2. Clean the data
-data = clean(data)
+#data = clean(data)
 
 # 3. Split the data into train/test sets
 
 
 # 4. Create a model
-Knearest(data)
+#Knearest(data)
 # 5. Train the model
 # 6. Make predictions
 # 7. Evaluate and improve
