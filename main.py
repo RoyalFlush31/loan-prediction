@@ -9,6 +9,8 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import itertools
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import roc_curve
+from sklearn.metrics import auc
 
 ### Functions
 
@@ -142,7 +144,6 @@ def accuracy(X_train, X_test, Y_train, Y_test, model):
     plt.figure()
     plot_confusion_matrix(cmtr, classes=class_names, title='Confusion matrix KNN train')
     plt.show()
-
 
 def user_input(data, labelEncoder):
     print("")
