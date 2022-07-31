@@ -9,6 +9,8 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import itertools
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import roc_curve
+from sklearn.metrics import auc
 
 ### Functions
 
@@ -147,10 +149,8 @@ def accuracy(X_train, X_test, Y_train, Y_test, model):
     print("Y_probs:", Y_probs[0:6, :])
     Y_test_probs = np.array(np.where(Y_test == 1, 1, 0))
     print("Y_test_probs:", Y_test_probs[0:6])
-    from sklearn.metrics import roc_curve
     fpr, tpr, threshold = roc_curve(Y_test_probs, Y_probs[:, 1])
     print("fpr:", fpr, "tpr:", tpr, "threshold:", threshold)
-    from sklearn.metrics import auc
     roc_auc = auc(fpr, tpr)
     print("roc and auc:", roc_auc)
 
