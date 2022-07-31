@@ -202,6 +202,39 @@ def Knearest(data):
     graph.format = 'png'
     graph.render("Churn_entropy")
     '''
+    #     Gini      #
+    from sklearn.tree import DecisionTreeClassifier
+    gtmodel = DecisionTreeClassifier(random_state=0)
+    gtmodel.fit(X_train, Y_train)
+    Y_train_pred = gtmodel.predict(X_train)
+    cmtr = confusion_matrix(Y_train, Y_train_pred)
+    print("Confusion Matrix Training:\n", cmtr)
+    acctr = accuracy_score(Y_train, Y_train_pred)
+    print("Accurray Training:", acctr)
+    Y_test_pred = gtmodel.predict(X_test)
+    cmte = confusion_matrix(Y_test, Y_test_pred)
+    print("Confusion Matrix Testing:\n", cmte)
+    accte = accuracy_score(Y_test, Y_test_pred)
+    print("Accurray Test:", accte)
+
+    accuracies = np.zeros((2, 20), float)
+    for k in range(0, 20):
+        gtmodel = DecisionTreeClassifier(random_state=0, max_depth=k + 1)
+        gtmodel.fit(X_train, Y_train)
+        Y_train_pred = gtmodel.predict(X_train)
+        acctr = accuracy_score(Y_train, Y_train_pred)
+        accuracies[0, k] = acctr
+        Y_test_pred = gtmodel.predict(X_test)
+        accte = accuracy_score(Y_test, Y_test_pred)
+        accuracies[1, k] = accte
+    plt.plot(range(1, 21), accuracies[0, :])
+    plt.plot(range(1, 21), accuracies[1, :])
+    plt.xlim(1, 20)
+    plt.xticks(range(1, 21))
+    plt.xlabel('Max_depth')
+    plt.ylabel('Accuracy')
+    plt.title('Comparison of Accuracies (Gini)')
+    plt.show()
 
 
 #print(data)
