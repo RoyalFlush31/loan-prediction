@@ -8,9 +8,8 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import numpy as np
 import sklearn as sk
-data = pd.read_csv("LoanPrediction.csv")
 
-def sample(data):
+def clean(data):
     #sample = resample(data, replace=False, n_samples=200, random_state=0)
     #data = data.dropna(True)
     males = data[data.Gender == 'Male']
@@ -30,6 +29,12 @@ def sample(data):
 
     data = data.drop(columns="Loan_ID")
     data = data.fillna(data.mean())
+
+    data = data.select_dtypes(exclude=['object'])
+    # Standardization
+    # data = (data - data.mean()) / data.std()
+    # Normalization
+    data = (data - data.min()) / (data.max() - data.min())
 
     return data
 
@@ -55,17 +60,7 @@ def show(data):
     #sns.boxplot(data=data, orient="v", palette="Set2")
     plt.show()
 
-def process(data):
-    data = data.select_dtypes(exclude=['object'])
-    # Standardization
-    #data = (data - data.mean()) / data.std()
-    # Normalization
-    data = (data - data.min()) / (data.max() - data.min())
-    #print(data.describe())
-    #sns.set(style="ticks")
-    #sns.pairplot(data, hue="Loan_Status")
-    #plt.show()
-    return data
+
 
 def partion(data):
     X = data.drop('Loan_Status', axis=1)
@@ -208,11 +203,26 @@ def Knearest(data):
     graph.render("Churn_entropy")
     '''
 
-data = process(sample(data))
+
 #print(data)
-Knearest(data)
+
 #analyze(data)
 #show(data)
+
+# 1. Import data
+data = pd.read_csv("LoanPrediction.csv")
+
+# 2. Clean the data
+data = clean(data)
+
+# 3. Split the data into train/test sets
+
+
+# 4. Create a model
+Knearest(data)
+# 5. Train the model
+# 6. Make predictions
+# 7. Evaluate and improve
 
 
 
