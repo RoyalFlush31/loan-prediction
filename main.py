@@ -46,20 +46,18 @@ def clean(data):
     data['Married'] = np.where(data['Married'] == 'Yes', 1, 0)
     data['Self_Employed'] = np.where(data['Self_Employed'] == 'Yes', 1, 0)
     data['Loan_Status'] = np.where(data['Loan_Status'] == 'Y', 1, 0)
+    data['Education'] = np.where(data['Education'] == 'Graduate', 1, 0)
 
     lb_Mar = LabelEncoder()
     data['Dependents'] = lb_Mar.fit_transform(data['Dependents'])
-    data['Education'] = lb_Mar.fit_transform(data['Education'])
     data['Property_Area'] = lb_Mar.fit_transform(data['Property_Area'])
-    data['ApplicantIncome'] = lb_Mar.fit_transform(data['ApplicantIncome'])
 
     data = data.drop(columns="Loan_ID")
     data = data.fillna(data.mean())
     data = data.select_dtypes(exclude=['object'])
+
     # Standardization
     # data = (data - data.mean()) / data.std()
-    # Normalization
-    data = (data - data.min()) / (data.max() - data.min())
 
     return data, lb_Mar
 
@@ -173,59 +171,49 @@ def accuracy(X_train, X_test, Y_train, Y_test, model):
     roc_auc = auc(fpr, tpr)
     print("roc and auc:", roc_auc)
 
-def user_input2(labelEncoder):
+def user_input(data, labelEncoder):
+    print("Welcome to the FUTURE Bank AG. Fill out the survey to get an automated answer if you could likely receive a loan.")
+    print("")
     '''
     user_gender = input("What is your gender? (m/f) ")
     user_married = input("Are you married? (y/n) ")
     user_dependents = input("How many dependents do you have? (0, 1, 2 or 3+) ")
     user_graduate = input("Do you have gratuated? (y/n) ")
     user_self_employed = input("Are you self-employed? (y/n) ")
-    user_applicant_income = input("How high is your income? (y/n) ")
-    user_coapplicant_income = input("How high is the income of your coapplicant? (y/n) ")
-    user_loan_amount = input("How much do you want to loan? ")
-    user_loan_amount_term = input("How many years should your loan last? ") * 12
+    user_applicant_income = int(input("How high is your income? (y/n) "))
+    user_coapplicant_income = int(input("How high is the income of your coapplicant? (y/n) "))
+    user_loan_amount = int(input("How much do you want to loan? "))
+    user_loan_amount_term = int(input("How many years should your loan last? ")) * 12
     user_credit_history = input("Do you already have a credit history? (y/n) ")
     user_property_area = input("Where do you live? (Rural, Semiurban, Urban) ")
-    choice = np.array([user_gender, user_married, user_dependents, user_graduate, user_self_employed, user_applicant_income,
-              user_coapplicant_income, user_loan_amount, user_loan_amount_term, user_credit_history, user_property_area])
+    choice = [user_gender, user_married, user_dependents, user_graduate, user_self_employed, user_applicant_income,
+              user_coapplicant_income, user_loan_amount, user_loan_amount_term, user_credit_history, user_property_area]
     '''
-    choice = np.array(["m", "y", 0, "y", "n", 6000, 0, 60, 360, "y", "Urban"])
-    choice = np.where((choice == "y") | (choice == "f"), 1, 0)
+    choice = [0, 0, '0', 1, 0, 10000, 0, 48, 60, 1, 'Urban']
 
-    print("User choice", choice)
-
-    #choice = labelEncoder.fit_transform(choice)
-
-def user_input(labelEncoder):
-    '''data['Gender'] = np.where(data['Gender'] == 'Female', 1, 0)
-    data['Married'] = np.where(data['Married'] == 'Yes', 1, 0)
-    data['Self_Employed'] = np.where(data['Self_Employed'] == 'Yes', 1, 0)
-    data['Loan_Status'] = np.where(data['Loan_Status'] == 'Y', 1, 0)
-
-    lb_Mar = LabelEncoder()
-    data['Dependents'] = lb_Mar.fit_transform(data['Dependents'])
-    data['Education'] = lb_Mar.fit_transform(data['Education'])
-    data['Property_Area'] = lb_Mar.fit_transform(data['Property_Area'])'''
-    choice = pd.DataFrame([["m", "y", 0, "y", "n", 6000, 0, 60, 360, "y", "Urban"]], columns=[
+    choice = pd.DataFrame([choice], columns=[
         "Gender", "Married", "Dependents", "Education", "Self_Employed", "ApplicantIncome",
         "CoapplicantIncome", "LoanAmount",
         "Loan_Amount_Term", "Credit_History", "Property_Area"])
+
     choice = choice.replace(to_replace=["y", "n"], value=[1, 0])
     choice = choice.replace(to_replace=["f", "m"], value=[1, 0])
+    print("Before", choice.iloc[0].values)
 
+    aI = 'ApplicantIncome'
+    cAI = "CoapplicantIncome"
+    LA = "LoanAmount"
+    lAT = "Loan_Amount_Term"
+    choice[aI] = (choice[aI] - data[aI].min()) / (data[aI].max() - data[aI].min())
+    choice[cAI] = (choice[cAI] - data[cAI].min()) / (data[cAI].max() - data[cAI].min())
+    choice[LA] = (choice[LA] - data[LA].min()) / (data[LA].max() - data[LA].min())
+    choice[lAT] = (choice[lAT] - data[lAT].min()) / (data[lAT].max() - data[lAT].min())
 
-    choice['Dependents'] = labelEncoder.fit_transform(choice['Dependents'])
-    choice['Education'] = labelEncoder.fit_transform(choice['Education'])
     choice['Property_Area'] = labelEncoder.fit_transform(choice['Property_Area'])
-    choice['ApplicantIncome'] = labelEncoder.fit_transform(choice['ApplicantIncome'])
-    choice['CoapplicantIncome'] = labelEncoder.fit_transform(choice['CoapplicantIncome'])
-    choice['LoanAmount'] = labelEncoder.fit_transform(choice['LoanAmount'])
-    choice['Loan_Amount_Term'] = labelEncoder.fit_transform(choice['Loan_Amount_Term'])
+    choice['Dependents'] = labelEncoder.fit_transform(choice['Dependents'])
 
-
-    #choice = (choice - choice.min()) / (choice.max() - choice.min())
-
-    print(choice.values)
+    print("After", choice.iloc[0].values)
+    return choice.values
 
 def decisionTree(X_train, X_test, Y_train, Y_test):
     # find optimal max_depth
@@ -262,8 +250,12 @@ data = pd.read_csv("LoanPrediction.csv")
 # 2. Clean the data
 data, labelEncoder = clean(data)
 
+# 3. Normalize data
+ndata = (data - data.min()) / (data.max() - data.min())
+print("Origin", ndata.iloc[0].values)
+
 # 3. Split the data into train/test sets
-X_train, X_test, Y_train, Y_test = split(data, 'Loan_Status')
+X_train, X_test, Y_train, Y_test = split(ndata, 'Loan_Status')
 
 
 # 4. Create and train a model
@@ -274,12 +266,15 @@ model = kNearest(X_train, X_test, Y_train, Y_test)
 # 5. Measure accuracy
 #accuracy(X_train, X_test, Y_train, Y_test, model)
 # 6. Make predictions
-user_input(labelEncoder)
-#result = model.predict([[user_input(labelEncoder)]])
-#print(result)
+choice = user_input(data, labelEncoder)
+result = int(model.predict(choice).item(0))
+
+if result == 0:
+    print("We are sorry to tell you that your application is not likey to become granted.")
+else:
+    print("We are very delighted to tell you that your application is likey to become granted! Apply now on our Website!")
 
 
-# 7. Evaluate and improve
 
 '''
 
