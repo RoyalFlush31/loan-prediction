@@ -141,18 +141,8 @@ def accuracy(X_train, X_test, Y_train, Y_test, model):
     class_names = ['no', 'yes']
     plt.figure()
     plot_confusion_matrix(cmtr, classes=class_names, title='Confusion matrix KNN train')
-    #plt.show()
+    plt.show()
 
-    Y_probs = model.predict_proba(X_test)
-    print("Y_probs:", Y_probs[0:6, :])
-    Y_test_probs = np.array(np.where(Y_test == 1, 1, 0))
-    print("Y_test_probs:", Y_test_probs[0:6])
-    from sklearn.metrics import roc_curve
-    fpr, tpr, threshold = roc_curve(Y_test_probs, Y_probs[:, 1])
-    print("fpr:", fpr, "tpr:", tpr, "threshold:", threshold)
-    from sklearn.metrics import auc
-    roc_auc = auc(fpr, tpr)
-    print("roc and auc:", roc_auc)
 
 def user_input(data, labelEncoder):
     print("")
