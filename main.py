@@ -186,6 +186,7 @@ model = Knearest(X_train, X_test, Y_train, Y_test)
 # 5. Measure accuracy
 accuracy(X_train, X_test, Y_train, Y_test, model)
 # 6. Make predictions
+
 # 7. Evaluate and improve
 
 '''
