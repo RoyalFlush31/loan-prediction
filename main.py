@@ -1,13 +1,14 @@
 import pandas as pd
 from sklearn.utils import resample
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import numpy as np
-import sklearn as sk
+import itertools
+
 
 def cleanGN(data):
     #sample = resample(data, replace=False, n_samples=200, random_state=0)
@@ -89,6 +90,36 @@ def partion(data):
                                                         stratify=Y, test_size=0.25, random_state=0)
     print(len(X_train), len(X_test), len(Y_train), len(Y_test))
 
+def checkJoblib(file, model):
+    try:
+        return joblib.load(file)
+    except:
+        joblib.dump(model, file)
+        return model
+
+
+def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix. Normalization can be applied by setting `normalize=True`. """
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+         plt.text(j, i, format(cm[i, j], fmt),
+                horizontalalignment="center", fontsize=16, color="white" if cm[i, j] > thresh else "black")
+         plt.ylabel('True label')
+         plt.xlabel('Predicted label')
+         plt.tight_layout()
+
+
 def Knearest(data):
     X = data.drop('Loan_Status', axis=1)
     Y = data['Loan_Status']
@@ -128,13 +159,30 @@ def Knearest(data):
 
     # in case of indifference (yes/no) which can appear with even numbers, the algorithm chooses the solution randomly
 
-    opt_k = 9 #manuelle eingefügt
+    opt_k = accuracies.index(max(accuracies)) + 1
     print('Optimal k =', opt_k)
 
     accte = accuracy_score(Y_test, Y_test_pred)
     report.loc[len(report)] = ['k-NN', acctr, accte]
     print(report)
 
+    ###########
+
+    Y_train_pred = knnmodel.predict(X_train)
+    cmtr = confusion_matrix(Y_train, Y_train_pred)
+    np.set_printoptions(precision=2)
+    class_names = ['no', 'yes']
+    plt.figure()
+    plot_confusion_matrix(cmtr, classes=class_names, title='Confusion matrix KNN train')
+    #plt.show()
+
+    lb_churn = LabelEncoder()
+    Y_test_code = lb_churn.fit_transform(Y_test)
+    Y_test_pred_code = lb_churn.fit_transform(Y_test_pred)
+
+
+    f1te = f1_score(Y_test_code, Y_test_pred_code)
+    print(f1te)
     '''#####################'''
 
     '''
@@ -225,7 +273,7 @@ def Knearest(data):
     graph.format = 'png'
     graph.render("Churn_entropy")
     
-    '''
+    
     #     Gini      #
     from sklearn.tree import DecisionTreeClassifier
     gtmodel = DecisionTreeClassifier(random_state=0)
@@ -258,15 +306,31 @@ def Knearest(data):
     plt.xlabel('Max_depth')
     plt.ylabel('Accuracy')
     plt.title('Comparison of Accuracies (Gini)')
-    plt.show()
+    plt.show()'''
 
 #print(data)
 
 #analyze(data)
 #show(data)
 
-data = pd.read_csv("LoanPrediction.csv")
 # 1. Import data
+data = pd.read_csv("LoanPrediction.csv")
+
+# 2. Clean the data
+data = clean(data)
+
+# 3. Split the data into train/test sets
+
+# 4. Create a model
+Knearest(data)
+#Knearest(data)
+# 5. Train the model
+# 6. Make predictions
+# 7. Evaluate and improve
+
+'''
+
+
 GN = str(input('Please enter if you want the Analysis performed Gender-Neutral? (Y/N)'))
 if GN == 'Y':
     data = cleanGN(data)
@@ -276,20 +340,7 @@ elif GN == 'N':
     Knearest(data)
 else:
     print('Input Error')
-
-
-
-# 2. Clean the data
-#data = clean(data)
-
-# 3. Split the data into train/test sets
-
-# 4. Create a model
-
-#Knearest(data)
-# 5. Train the model
-# 6. Make predictions
-# 7. Evaluate and improve
+'''
 
 
 
