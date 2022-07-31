@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import sklearn as sk
 
-def clean(data):
+def cleanGN(data):
     #sample = resample(data, replace=False, n_samples=200, random_state=0)
     #data = data.dropna(True)
     males = data[data.Gender == 'Male']
@@ -17,6 +17,28 @@ def clean(data):
     sample = resample(males, n_samples=len(females), replace=False, random_state=0)
     data = pd.concat([sample, females])
 
+    data['Gender'] = np.where(data['Gender'] == 'Female', 1, 0)
+    data['Married'] = np.where(data['Married'] == 'Yes', 1, 0)
+    data['Self_Employed'] = np.where(data['Self_Employed'] == 'Yes', 1, 0)
+    data['Loan_Status'] = np.where(data['Loan_Status'] == 'Y', 1, 0)
+
+    lb_Mar = LabelEncoder()
+    data['Dependents'] = lb_Mar.fit_transform(data['Dependents'])
+    data['Education'] = lb_Mar.fit_transform(data['Education'])
+    data['Property_Area'] = lb_Mar.fit_transform(data['Property_Area'])
+
+    data = data.drop(columns="Loan_ID")
+    data = data.fillna(data.mean())
+
+    data = data.select_dtypes(exclude=['object'])
+    # Standardization
+    # data = (data - data.mean()) / data.std()
+    # Normalization
+    data = (data - data.min()) / (data.max() - data.min())
+
+    return data
+
+def clean(data):
     data['Gender'] = np.where(data['Gender'] == 'Female', 1, 0)
     data['Married'] = np.where(data['Married'] == 'Yes', 1, 0)
     data['Self_Employed'] = np.where(data['Self_Employed'] == 'Yes', 1, 0)
@@ -204,18 +226,67 @@ def Knearest(data):
     graph.render("Churn_entropy")
     
     '''
+    #     Gini      #
+    from sklearn.tree import DecisionTreeClassifier
+    gtmodel = DecisionTreeClassifier(random_state=0)
+    gtmodel.fit(X_train, Y_train)
+    Y_train_pred = gtmodel.predict(X_train)
+    cmtr = confusion_matrix(Y_train, Y_train_pred)
+    print("Confusion Matrix Training:\n", cmtr)
+    acctr = accuracy_score(Y_train, Y_train_pred)
+    print("Accurray Training:", acctr)
+    Y_test_pred = gtmodel.predict(X_test)
+    cmte = confusion_matrix(Y_test, Y_test_pred)
+    print("Confusion Matrix Testing:\n", cmte)
+    accte = accuracy_score(Y_test, Y_test_pred)
+    print("Accurray Test:", accte)
 
-# 1. Import data
+    accuracies = np.zeros((2, 20), float)
+    for k in range(0, 20):
+        gtmodel = DecisionTreeClassifier(random_state=0, max_depth=k + 1)
+        gtmodel.fit(X_train, Y_train)
+        Y_train_pred = gtmodel.predict(X_train)
+        acctr = accuracy_score(Y_train, Y_train_pred)
+        accuracies[0, k] = acctr
+        Y_test_pred = gtmodel.predict(X_test)
+        accte = accuracy_score(Y_test, Y_test_pred)
+        accuracies[1, k] = accte
+    plt.plot(range(1, 21), accuracies[0, :])
+    plt.plot(range(1, 21), accuracies[1, :])
+    plt.xlim(1, 20)
+    plt.xticks(range(1, 21))
+    plt.xlabel('Max_depth')
+    plt.ylabel('Accuracy')
+    plt.title('Comparison of Accuracies (Gini)')
+    plt.show()
+
+#print(data)
+
+#analyze(data)
+#show(data)
+
 data = pd.read_csv("LoanPrediction.csv")
+# 1. Import data
+GN = str(input('Please enter if you want the Analysis performed Gender-Neutral? (Y/N)'))
+if GN == 'Y':
+    data = cleanGN(data)
+    Knearest(data)
+elif GN == 'N':
+    data = clean(data)
+    Knearest(data)
+else:
+    print('Input Error')
+
+
 
 # 2. Clean the data
-data = clean(data)
+#data = clean(data)
 
 # 3. Split the data into train/test sets
 
 # 4. Create a model
-Knearest(data)
 
+#Knearest(data)
 # 5. Train the model
 # 6. Make predictions
 # 7. Evaluate and improve
