@@ -13,8 +13,6 @@ from sklearn.tree import DecisionTreeClassifier
 ### Functions
 
 def cleanGN(data):
-    #sample = resample(data, replace=False, n_samples=200, random_state=0)
-    #data = data.dropna(True)
     males = data[data.Gender == 'Male']
     females = data[data.Gender == 'Female']
     sample = resample(males, n_samples=len(females), replace=False, random_state=0)
@@ -24,22 +22,17 @@ def cleanGN(data):
     data['Married'] = np.where(data['Married'] == 'Yes', 1, 0)
     data['Self_Employed'] = np.where(data['Self_Employed'] == 'Yes', 1, 0)
     data['Loan_Status'] = np.where(data['Loan_Status'] == 'Y', 1, 0)
+    data['Education'] = np.where(data['Education'] == 'Graduate', 1, 0)
 
     lb_Mar = LabelEncoder()
     data['Dependents'] = lb_Mar.fit_transform(data['Dependents'])
-    data['Education'] = lb_Mar.fit_transform(data['Education'])
     data['Property_Area'] = lb_Mar.fit_transform(data['Property_Area'])
 
     data = data.drop(columns="Loan_ID")
     data = data.fillna(data.mean())
-
     data = data.select_dtypes(exclude=['object'])
-    # Standardization
-    # data = (data - data.mean()) / data.std()
-    # Normalization
-    data = (data - data.min()) / (data.max() - data.min())
 
-    return data
+    return data, lb_Mar
 
 def clean(data):
     data['Gender'] = np.where(data['Gender'] == 'Female', 1, 0)
@@ -55,9 +48,6 @@ def clean(data):
     data = data.drop(columns="Loan_ID")
     data = data.fillna(data.mean())
     data = data.select_dtypes(exclude=['object'])
-
-    # Standardization
-    # data = (data - data.mean()) / data.std()
 
     return data, lb_Mar
 
@@ -87,13 +77,6 @@ def show(data):
     sns.pairplot(data, hue="Loan_Status")
     #sns.boxplot(data=data, orient="v", palette="Set2")
     plt.show()
-
-def checkJoblib(file, model):
-    try:
-        return joblib.load(file)
-    except:
-        joblib.dump(model, file)
-        return model
 
 def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
     """
@@ -171,14 +154,11 @@ def accuracy(X_train, X_test, Y_train, Y_test, model):
     roc_auc = auc(fpr, tpr)
     print("roc and auc:", roc_auc)
 
-<<<<<<< HEAD
 def user_input(data, labelEncoder):
+    print("")
     print("Welcome to the FUTURE Bank AG. Fill out the survey to get an automated answer if you could likely receive a loan.")
     print("")
-=======
-def user_input(labelEncoder):
->>>>>>> a82aeaf805fb63c1afcadfd596702d40724d5670
-    '''
+
     user_gender = input("What is your gender? (m/f) ")
     user_married = input("Are you married? (y/n) ")
     user_dependents = input("How many dependents do you have? (0, 1, 2 or 3+) ")
@@ -192,9 +172,8 @@ def user_input(labelEncoder):
     user_property_area = input("Where do you live? (Rural, Semiurban, Urban) ")
     choice = [user_gender, user_married, user_dependents, user_graduate, user_self_employed, user_applicant_income,
               user_coapplicant_income, user_loan_amount, user_loan_amount_term, user_credit_history, user_property_area]
-    '''
-<<<<<<< HEAD
-    choice = [0, 0, '0', 1, 0, 10000, 0, 48, 60, 1, 'Urban']
+
+    #choice = [0, 0, '0', 1, 0, 10000, 0, 48, 60, 1, 'Urban'] # Used for testing
 
     choice = pd.DataFrame([choice], columns=[
         "Gender", "Married", "Dependents", "Education", "Self_Employed", "ApplicantIncome",
@@ -203,7 +182,6 @@ def user_input(labelEncoder):
 
     choice = choice.replace(to_replace=["y", "n"], value=[1, 0])
     choice = choice.replace(to_replace=["f", "m"], value=[1, 0])
-    print("Before", choice.iloc[0].values)
 
     aI = 'ApplicantIncome'
     cAI = "CoapplicantIncome"
@@ -217,13 +195,7 @@ def user_input(labelEncoder):
     choice['Property_Area'] = labelEncoder.fit_transform(choice['Property_Area'])
     choice['Dependents'] = labelEncoder.fit_transform(choice['Dependents'])
 
-    print("After", choice.iloc[0].values)
     return choice.values
-=======
-    #choice = np.array(["m", "y", 0, "y", "n", 6000, 0, 60, 360, "y", "Urban"])
-
-    #choice = labelEncoder.fit_transform(choice)
->>>>>>> a82aeaf805fb63c1afcadfd596702d40724d5670
 
 def decisionTree(X_train, X_test, Y_train, Y_test):
     # find optimal max_depth
@@ -258,176 +230,46 @@ def decisionTree(X_train, X_test, Y_train, Y_test):
 data = pd.read_csv("LoanPrediction.csv")
 
 # 2. Clean the data
-data, labelEncoder = clean(data)
+GN = input("Do you want to conduct the survey gender neutral? (y/n) ")
+if GN == "y":
+    data, labelEncoder = cleanGN(data)
+elif GN == "n":
+    data, labelEncoder = clean(data)
+else:
+    print("Wrong answer")
+    pass
 
 # 3. Normalize data
 ndata = (data - data.min()) / (data.max() - data.min())
-print("Origin", ndata.iloc[0].values)
 
 # 3. Split the data into train/test sets
 X_train, X_test, Y_train, Y_test = split(ndata, 'Loan_Status')
 
-
 # 4. Create and train a model
-#model = kNearest(X_train, X_test, Y_train, Y_test)
+test = input("Do you want to conduct the survey with the help of kNearest or DecistionTree? We recommend kN (kN/dT) ")
+if test == "kN":
+    model = kNearest(X_train, X_test, Y_train, Y_test)
+elif test == "dT":
+    model = decisionTree(X_train, X_test, Y_train, Y_test)
+else:
+    print("Wrong answer")
+    pass
 
+# 5. Measure accuracy (USED FOR TESTING)
+accurancy_faq = input("Do you want to see the accurancy of this survey? (y/n)")
+if accurancy_faq == "y":
+    accuracy(X_train, X_test, Y_train, Y_test, model)
+else:
+    pass
 
-model = decisionTree(X_train, X_test, Y_train, Y_test)
-# 5. Measure accuracy
-accuracy(X_train, X_test, Y_train, Y_test, model)
 # 6. Make predictions
-<<<<<<< HEAD
 choice = user_input(data, labelEncoder)
 result = int(model.predict(choice).item(0))
 
+print(" ")
 if result == 0:
     print("We are sorry to tell you that your application is not likey to become granted.")
 else:
     print("We are very delighted to tell you that your application is likey to become granted! Apply now on our Website!")
-=======
 
-result = model.predict([[user_input(labelEncoder)]])
-print(result)
->>>>>>> a82aeaf805fb63c1afcadfd596702d40724d5670
-
-
-
-'''
-
-
-GN = str(input('Please enter if you want the Analysis performed Gender-Neutral? (Y/N)'))
-if GN == 'Y':
-    data = cleanGN(data)
-    Knearest(data)
-elif GN == 'N':
-    data = clean(data)
-    Knearest(data)
-else:
-    print('Input Error')
-'''
-
-'''#####################'''
-
-'''
-
-
-# calculate ROC and AUC and plot the curve
-Y_probs = knnmodel.predict_proba(X_test)
-print("Y_probs:", Y_probs[0:6, :])
-Y_test_probs = np.array(np.where(Y_test == 1, 1, 0))
-print("Y_test_probs:", Y_test_probs[0:6])
-from sklearn.metrics import roc_curve
-fpr, tpr, threshold = roc_curve(Y_test_probs, Y_probs[:, 1])
-print("fpr:",fpr, "tpr:", tpr,"threshold:", threshold)
-from sklearn.metrics import auc
-roc_auc = auc(fpr, tpr)
-print("roc and auc:",roc_auc)
-Y_train_pred_prob = etmodel.predict_proba(X_train)
-
-
-
-###### DECISION TREEE VIZ
-
-
-    Y_train_pred = etmodel.predict(X_train)
-    cmtr = confusion_matrix(Y_train, Y_train_pred)
-    print("Confusion Matrix Training:\n", cmtr)
-    acctr = accuracy_score(Y_train, Y_train_pred)
-    print("Accurray Training:", acctr)
-    Y_test_pred = etmodel.predict(X_test)
-    cmte = confusion_matrix(Y_test, Y_test_pred)
-    print("Confusion Matrix Testing:\n", cmte)
-    accte = accuracy_score(Y_test, Y_test_pred)
-    print("Accurray Test:", accte)
-    report.loc[len(report)] = ['Tree (Entropy)', acctr, accte]
-
-    # plot tree
-    from sklearn.tree import plot_tree
-    fig, ax = plt.subplots(figsize=(30, 12))
-    plot_tree(etmodel, feature_names=list(X), filled=True, rounded=True, max_depth=4, fontsize=10)
-    plt.show()
-
-    # plot tree using graphviz
-    import graphviz
-    dot_data = sk.tree.export_graphviz(etmodel, out_file=None,
-                                       feature_names=list(X),
-                                       filled=True, rounded=True,
-                                       special_characters=True)
-    graph = graphviz.Source(dot_data)
-    graph.format = 'png'
-    graph.render("Churn_entropy")
-
-    #     Gini      #
-    from sklearn.tree import DecisionTreeClassifier
-    gtmodel = DecisionTreeClassifier(random_state=0)
-    gtmodel.fit(X_train, Y_train)
-    Y_train_pred = gtmodel.predict(X_train)
-    cmtr = confusion_matrix(Y_train, Y_train_pred)
-    print("Confusion Matrix Training:\n", cmtr)
-    acctr = accuracy_score(Y_train, Y_train_pred)
-    print("Accurray Training:", acctr)
-    Y_test_pred = gtmodel.predict(X_test)
-    cmte = confusion_matrix(Y_test, Y_test_pred)
-    print("Confusion Matrix Testing:\n", cmte)
-    accte = accuracy_score(Y_test, Y_test_pred)
-    print("Accurray Test:", accte)
-
-    accuracies = np.zeros((2, 20), float)
-    for k in range(0, 20):
-        gtmodel = DecisionTreeClassifier(random_state=0, max_depth=k + 1)
-        gtmodel.fit(X_train, Y_train)
-        Y_train_pred = gtmodel.predict(X_train)
-        acctr = accuracy_score(Y_train, Y_train_pred)
-        accuracies[0, k] = acctr
-        Y_test_pred = gtmodel.predict(X_test)
-        accte = accuracy_score(Y_test, Y_test_pred)
-        accuracies[1, k] = accte
-    plt.plot(range(1, 21), accuracies[0, :])
-    plt.plot(range(1, 21), accuracies[1, :])
-    plt.xlim(1, 20)
-    plt.xticks(range(1, 21))
-    plt.xlabel('Max_depth')
-    plt.ylabel('Accuracy')
-    plt.title('Comparison of Accuracies (Gini)')
-    plt.show()
-
-    gtmodel = DecisionTreeClassifier(random_state=0, max_depth=8)
-    gtmodel.fit(X_train, Y_train)
-    Y_train_pred = gtmodel.predict(X_train)
-    cmtr = confusion_matrix(Y_train, Y_train_pred)
-    print("Confusion Matrix Training:\n", cmtr)
-    acctr = accuracy_score(Y_train, Y_train_pred)
-    print("Accurray Training:", acctr)
-    Y_test_pred = gtmodel.predict(X_test)
-    cmte = confusion_matrix(Y_test, Y_test_pred)
-    print("Confusion Matrix Testing:\n", cmte)
-    accte = accuracy_score(Y_test, Y_test_pred)
-    print("Accurray Test:", accte)
-    report.loc[len(report)] = ['Tree (Gini)', acctr, accte]
-    print(report)
-
-    # plot tree
-    from sklearn.tree import plot_tree
-    fig, ax = plt.subplots(figsize=(30, 12))
-    plot_tree(gtmodel, feature_names=list(X), filled=True, rounded=True, max_depth=4, fontsize=10)
-    plt.show()
-
-    import graphviz
-    dot_data = sk.tree.export_graphviz(gtmodel, out_file=None,
-                                       feature_names=list(X),
-                                       filled=True, rounded=True,
-                                       special_characters=True)
-    graph = graphviz.Source(dot_data)
-    graph.format = 'png'
-    graph.render("Churn_gini")
-
-    # show feature importance
-    list(zip(X, gtmodel.feature_importances_))
-    index = np.arange(len(gtmodel.feature_importances_))
-    bar_width = 1.0
-    plt.bar(index, gtmodel.feature_importances_, bar_width)
-    plt.xticks(index, list(X), rotation=90)  # labels get centered
-    plt.show()
-
-'''
 
