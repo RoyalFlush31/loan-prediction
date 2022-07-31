@@ -52,15 +52,13 @@ def clean(data):
     data['Property_Area'] = lb_Mar.fit_transform(data['Property_Area'])
 
     data = data.drop(columns="Loan_ID")
-    data = data.fillna(data.mean())
-
     data = data.select_dtypes(exclude=['object'])
     # Standardization
     # data = (data - data.mean()) / data.std()
     # Normalization
     data = (data - data.min()) / (data.max() - data.min())
 
-    return data
+    return data, lb_Mar
 
 def split(data, target):
     X = data.drop(target, axis=1)
@@ -146,9 +144,9 @@ def accuracy(X_train, X_test, Y_train, Y_test, model):
     print("Confusion Matrix Training:\n", cmtr)
     print("Confusion Matrix Testing:\n", cmte)
 
-    lb_churn = LabelEncoder()
-    Y_test_code = lb_churn.fit_transform(Y_test)
-    Y_test_pred_code = lb_churn.fit_transform(Y_test_pred)
+    labelEncoder = LabelEncoder()
+    Y_test_code = labelEncoder.fit_transform(Y_test)
+    Y_test_pred_code = labelEncoder.fit_transform(Y_test_pred)
     f1te = f1_score(Y_test_code, Y_test_pred_code)
 
     report = pd.DataFrame(columns=['Model', 'Acc.Train', 'Acc.Test', 'F1.score'])
@@ -172,14 +170,23 @@ def accuracy(X_train, X_test, Y_train, Y_test, model):
     roc_auc = auc(fpr, tpr)
     print("roc and auc:", roc_auc)
 
-def user_input():
+def user_input(labelEncoder):
     user_gender = input("What is your gender? (m/f) ")
     user_married = input("Are you married? (y/n) ")
     user_dependents = input("How many dependents do you have? (0, 1, 2 or 3+) ")
     user_graduate = input("Do you have gratuated? (y/n) ")
     user_self_employed = input("Are you self-employed? (y/n) ")
     user_applicant_income = input("How high is your income? (y/n) ")
+    user_coapplicant_income = input("How high is the income of your coapplicant? (y/n) ")
+    user_loan_amount = input("How much do you want to loan? ")
+    user_loan_amount_term = input("How many years should your loan last? ") * 12
+    user_credit_history = input("Do you already have a credit history? (y/n) ")
+    user_property_area = input("Where do you live? (Rural, Semiurban, Urban) ")
+    choice = np.array([user_gender, user_married, user_dependents, user_graduate, user_self_employed, user_applicant_income,
+              user_coapplicant_income, user_loan_amount, user_loan_amount_term, user_credit_history, user_property_area])
     
+    choice = labelEncoder.fit_transform(choice)
+
 
 def decisiontree(X_train,Y_train):
     from sklearn.tree import DecisionTreeClassifier
@@ -315,7 +322,7 @@ def decisiontree(X_train,Y_train):
 data = pd.read_csv("LoanPrediction.csv")
 
 # 2. Clean the data
-data = clean(data)
+data, labelEncoder = clean(data)
 
 # 3. Split the data into train/test sets
 X_train, X_test, Y_train, Y_test = split(data, 'Loan_Status')[0]
@@ -327,10 +334,10 @@ model = Knearest(X_train, X_test, Y_train, Y_test)
 
 model2 = decisiontree(X_train,Y_train)
 # 5. Measure accuracy
-#accuracy(X_train, X_test, Y_train, Y_test, model)
+accuracy(X_train, X_test, Y_train, Y_test, model)
 # 6. Make predictions
 
-result = model.predict([[user_input()]])
+result = model.predict([[user_input(labelEncoder)]])
 print(result)
 
 
