@@ -154,7 +154,10 @@ def user_input(data, labelEncoder):
     user_graduate = input("Do you have gratuated? (y/n) ")
     user_self_employed = input("Are you self-employed? (y/n) ")
     user_applicant_income = int(input("How high is your income per month? "))
-    user_coapplicant_income = int(input("How high is the income of your coapplicant per month? "))
+    if user_married == "y":
+        user_coapplicant_income = int(input("How high is the income of your coapplicant per month? "))
+    else:
+        user_coapplicant_income = 0
     user_loan_amount = int(input("How much do you want to loan per month? "))
     user_loan_amount_term = int(input("How many years should your loan last? ")) * 12
     user_credit_history = input("Do you already have a credit history? (y/n) ")
