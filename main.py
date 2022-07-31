@@ -8,7 +8,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import numpy as np
 import itertools
-
+import sklearn as sk
 ### Functions
 
 def cleanGN(data):
@@ -65,7 +65,7 @@ def clean(data):
 def split(data, target):
     X = data.drop(target, axis=1)
     Y = data['Loan_Status']
-    return train_test_split(X, Y, stratify=Y, test_size=0.23, random_state=0)
+    return train_test_split(X, Y, stratify=Y, test_size=0.25, random_state=0), X, Y
 
 def analyze(data):
     print(f"Length: {len(data)}")
@@ -181,8 +181,134 @@ def user_input():
     user_applicant_income = input("How high is your income? (y/n) ")
     
 
+def decisiontree(X_train,Y_train):
+    from sklearn.tree import DecisionTreeClassifier
 
+    # create report dataframe
+    report = pd.DataFrame(columns=['Model', 'Acc.Train', 'Acc.Test'])
+    # find optimal max_depth
+    accuracies = np.zeros((2, 20), float)
+    for k in range(0, 20):
+        etmodel = DecisionTreeClassifier(criterion='entropy', random_state=0, max_depth=k + 1)
+        etmodel.fit(X_train, Y_train)
+        Y_train_pred = etmodel.predict(X_train)
+        acctr = accuracy_score(Y_train, Y_train_pred)
+        accuracies[0, k] = acctr
+        Y_test_pred = etmodel.predict(X_test)
+        accte = accuracy_score(Y_test, Y_test_pred)
+        accuracies[1, k] = accte
+    plt.plot(range(1, 21), accuracies[0, :])
+    plt.plot(range(1, 21), accuracies[1, :])
+    plt.xlim(1, 20)
+    plt.xticks(range(1, 21))
+    plt.xlabel('Max_depth')
+    plt.ylabel('Accuracy')
+    plt.title('Comparison of Accuracies (Entropy)')
+    plt.show()
 
+    etmodel = DecisionTreeClassifier(criterion='entropy', random_state=0, max_depth=5)
+    etmodel.fit(X_train, Y_train)
+    Y_train_pred = etmodel.predict(X_train)
+    cmtr = confusion_matrix(Y_train, Y_train_pred)
+    print("Confusion Matrix Training:\n", cmtr)
+    acctr = accuracy_score(Y_train, Y_train_pred)
+    print("Accurray Training:", acctr)
+    Y_test_pred = etmodel.predict(X_test)
+    cmte = confusion_matrix(Y_test, Y_test_pred)
+    print("Confusion Matrix Testing:\n", cmte)
+    accte = accuracy_score(Y_test, Y_test_pred)
+    print("Accurray Test:", accte)
+    report.loc[len(report)] = ['Tree (Entropy)', acctr, accte]
+
+    # plot tree
+    from sklearn.tree import plot_tree
+    fig, ax = plt.subplots(figsize=(30, 12))
+    plot_tree(etmodel, feature_names=list(X), filled=True, rounded=True, max_depth=4, fontsize=10)
+    plt.show()
+
+    # plot tree using graphviz
+    import graphviz
+    dot_data = sk.tree.export_graphviz(etmodel, out_file=None,
+                                       feature_names=list(X),
+                                       filled=True, rounded=True,
+                                       special_characters=True)
+    graph = graphviz.Source(dot_data)
+    graph.format = 'png'
+    graph.render("Churn_entropy")
+
+    #     Gini      #
+    from sklearn.tree import DecisionTreeClassifier
+    gtmodel = DecisionTreeClassifier(random_state=0)
+    gtmodel.fit(X_train, Y_train)
+    Y_train_pred = gtmodel.predict(X_train)
+    cmtr = confusion_matrix(Y_train, Y_train_pred)
+    print("Confusion Matrix Training:\n", cmtr)
+    acctr = accuracy_score(Y_train, Y_train_pred)
+    print("Accurray Training:", acctr)
+    Y_test_pred = gtmodel.predict(X_test)
+    cmte = confusion_matrix(Y_test, Y_test_pred)
+    print("Confusion Matrix Testing:\n", cmte)
+    accte = accuracy_score(Y_test, Y_test_pred)
+    print("Accurray Test:", accte)
+
+    accuracies = np.zeros((2, 20), float)
+    for k in range(0, 20):
+        gtmodel = DecisionTreeClassifier(random_state=0, max_depth=k + 1)
+        gtmodel.fit(X_train, Y_train)
+        Y_train_pred = gtmodel.predict(X_train)
+        acctr = accuracy_score(Y_train, Y_train_pred)
+        accuracies[0, k] = acctr
+        Y_test_pred = gtmodel.predict(X_test)
+        accte = accuracy_score(Y_test, Y_test_pred)
+        accuracies[1, k] = accte
+    plt.plot(range(1, 21), accuracies[0, :])
+    plt.plot(range(1, 21), accuracies[1, :])
+    plt.xlim(1, 20)
+    plt.xticks(range(1, 21))
+    plt.xlabel('Max_depth')
+    plt.ylabel('Accuracy')
+    plt.title('Comparison of Accuracies (Gini)')
+    plt.show()
+
+    gtmodel = DecisionTreeClassifier(random_state=0, max_depth=8)
+    gtmodel.fit(X_train, Y_train)
+    Y_train_pred = gtmodel.predict(X_train)
+    cmtr = confusion_matrix(Y_train, Y_train_pred)
+    print("Confusion Matrix Training:\n", cmtr)
+    acctr = accuracy_score(Y_train, Y_train_pred)
+    print("Accurray Training:", acctr)
+    Y_test_pred = gtmodel.predict(X_test)
+    cmte = confusion_matrix(Y_test, Y_test_pred)
+    print("Confusion Matrix Testing:\n", cmte)
+    accte = accuracy_score(Y_test, Y_test_pred)
+    print("Accurray Test:", accte)
+    report.loc[len(report)] = ['Tree (Gini)', acctr, accte]
+    print(report)
+
+    # plot tree
+    from sklearn.tree import plot_tree
+    fig, ax = plt.subplots(figsize=(30, 12))
+    plot_tree(gtmodel, feature_names=list(X), filled=True, rounded=True, max_depth=4, fontsize=10)
+    plt.show()
+
+    import graphviz
+    dot_data = sk.tree.export_graphviz(gtmodel, out_file=None,
+                                       feature_names=list(X),
+                                       filled=True, rounded=True,
+                                       special_characters=True)
+    graph = graphviz.Source(dot_data)
+    graph.format = 'png'
+    graph.render("Churn_gini")
+
+    # show feature importance
+    list(zip(X, gtmodel.feature_importances_))
+    index = np.arange(len(gtmodel.feature_importances_))
+    bar_width = 1.0
+    plt.bar(index, gtmodel.feature_importances_, bar_width)
+    plt.xticks(index, list(X), rotation=90)  # labels get centered
+    plt.show()
+
+    return
 ### Execution
 
 # 1. Import data
@@ -192,13 +318,14 @@ data = pd.read_csv("LoanPrediction.csv")
 data = clean(data)
 
 # 3. Split the data into train/test sets
-X_train, X_test, Y_train, Y_test = split(data, 'Loan_Status')
-print(data.iloc[0])
+X_train, X_test, Y_train, Y_test = split(data, 'Loan_Status')[0]
+X = split(data, 'Loan_Status')[1] ### difining X for model2 plot creation 
 
 # 4. Create and train a model
 model = Knearest(X_train, X_test, Y_train, Y_test)
 
 
+model2 = decisiontree(X_train,Y_train)
 # 5. Measure accuracy
 #accuracy(X_train, X_test, Y_train, Y_test, model)
 # 6. Make predictions
@@ -239,104 +366,7 @@ print("fpr:",fpr, "tpr:", tpr,"threshold:", threshold)
 from sklearn.metrics import auc
 roc_auc = auc(fpr, tpr)
 print("roc and auc:",roc_auc)
-
-from sklearn.tree import DecisionTreeClassifier
-etmodel = DecisionTreeClassifier(criterion='entropy', random_state=0)
-etmodel.fit(X_train, Y_train)
-Y_train_pred = etmodel.predict(X_train)
-cmtr = confusion_matrix(Y_train, Y_train_pred)
-print("Confusion Matrix Training:\n", cmtr)
-acctr = accuracy_score(Y_train, Y_train_pred)
-print("Accurray Training:", acctr)
-Y_test_pred = etmodel.predict(X_test)
-cmte = confusion_matrix(Y_test, Y_test_pred)
-print("Confusion Matrix Testing:\n", cmte)
-accte = accuracy_score(Y_test, Y_test_pred)
-print("Accurray Test:", accte)
-
 Y_train_pred_prob = etmodel.predict_proba(X_train)
 
-# find optimal max_depth
-accuracies = np.zeros((2, 20), float)
-for k in range(0, 20):
-    etmodel = DecisionTreeClassifier(criterion='entropy', random_state=0, max_depth=k + 1)
-    etmodel.fit(X_train, Y_train)
-    Y_train_pred = etmodel.predict(X_train)
-    acctr = accuracy_score(Y_train, Y_train_pred)
-    accuracies[0, k] = acctr
-    Y_test_pred = etmodel.predict(X_test)
-    accte = accuracy_score(Y_test, Y_test_pred)
-    accuracies[1, k] = accte
-plt.plot(range(1, 21), accuracies[0, :])
-plt.plot(range(1, 21), accuracies[1, :])
-plt.xlim(1, 20)
-plt.xticks(range(1, 21))
-plt.xlabel('Max_depth')
-plt.ylabel('Accuracy')
-plt.title('Comparison of Accuracies (Entropy)')
-plt.show()
+'''
 
-etmodel = DecisionTreeClassifier(criterion='entropy', random_state=0, max_depth=5)
-etmodel.fit(X_train, Y_train)
-Y_train_pred = etmodel.predict(X_train)
-cmtr = confusion_matrix(Y_train, Y_train_pred)
-print("Confusion Matrix Training:\n", cmtr)
-acctr = accuracy_score(Y_train, Y_train_pred)
-print("Accurray Training:", acctr)
-Y_test_pred = etmodel.predict(X_test)
-cmte = confusion_matrix(Y_test, Y_test_pred)
-print("Confusion Matrix Testing:\n", cmte)
-accte = accuracy_score(Y_test, Y_test_pred)
-print("Accurray Test:", accte)
-report.loc[len(report)] = ['Tree (Entropy)', acctr, accte]
-
-# plot tree
-from sklearn.tree import plot_tree
-fig, ax = plt.subplots(figsize=(30, 12))
-plot_tree(etmodel, feature_names=list(X), filled=True, rounded=True, max_depth=4, fontsize=10)
-plt.show()
-
-##### # plot tree using graphviz
-import graphviz
-dot_data = sk.tree.export_graphviz(etmodel, out_file=None,
-                                   feature_names=list(X),
-                                   filled=True, rounded=True,
-                                   special_characters=True)
-graph = graphviz.Source(dot_data)
-graph.format = 'png'
-graph.render("Churn_entropy")
-
-
-#     Gini      #
-from sklearn.tree import DecisionTreeClassifier
-gtmodel = DecisionTreeClassifier(random_state=0)
-gtmodel.fit(X_train, Y_train)
-Y_train_pred = gtmodel.predict(X_train)
-cmtr = confusion_matrix(Y_train, Y_train_pred)
-print("Confusion Matrix Training:\n", cmtr)
-acctr = accuracy_score(Y_train, Y_train_pred)
-print("Accurray Training:", acctr)
-Y_test_pred = gtmodel.predict(X_test)
-cmte = confusion_matrix(Y_test, Y_test_pred)
-print("Confusion Matrix Testing:\n", cmte)
-accte = accuracy_score(Y_test, Y_test_pred)
-print("Accurray Test:", accte)
-
-accuracies = np.zeros((2, 20), float)
-for k in range(0, 20):
-    gtmodel = DecisionTreeClassifier(random_state=0, max_depth=k + 1)
-    gtmodel.fit(X_train, Y_train)
-    Y_train_pred = gtmodel.predict(X_train)
-    acctr = accuracy_score(Y_train, Y_train_pred)
-    accuracies[0, k] = acctr
-    Y_test_pred = gtmodel.predict(X_test)
-    accte = accuracy_score(Y_test, Y_test_pred)
-    accuracies[1, k] = accte
-plt.plot(range(1, 21), accuracies[0, :])
-plt.plot(range(1, 21), accuracies[1, :])
-plt.xlim(1, 20)
-plt.xticks(range(1, 21))
-plt.xlabel('Max_depth')
-plt.ylabel('Accuracy')
-plt.title('Comparison of Accuracies (Gini)')
-plt.show()'''
