@@ -9,8 +9,6 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import itertools
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import roc_curve
-from sklearn.metrics import auc
 
 ### Functions
 
@@ -155,9 +153,9 @@ def user_input(data, labelEncoder):
     user_dependents = input("How many dependents do you have? (0, 1, 2 or 3+) ")
     user_graduate = input("Do you have gratuated? (y/n) ")
     user_self_employed = input("Are you self-employed? (y/n) ")
-    user_applicant_income = int(input("How high is your income? "))
-    user_coapplicant_income = int(input("How high is the income of your coapplicant? "))
-    user_loan_amount = int(input("How much do you want to loan? "))
+    user_applicant_income = int(input("How high is your income per month? "))
+    user_coapplicant_income = int(input("How high is the income of your coapplicant per month? "))
+    user_loan_amount = int(input("How much do you want to loan per month? "))
     user_loan_amount_term = int(input("How many years should your loan last? ")) * 12
     user_credit_history = input("Do you already have a credit history? (y/n) ")
     user_property_area = input("Where do you live? (Rural, Semiurban, Urban) ")
