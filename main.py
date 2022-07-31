@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import itertools
 
+### Functions
 
 def cleanGN(data):
     #sample = resample(data, replace=False, n_samples=200, random_state=0)
@@ -61,6 +62,11 @@ def clean(data):
 
     return data
 
+def split(data, target):
+    X = data.drop(target, axis=1)
+    Y = data['Loan_Status']
+    return train_test_split(X, Y, stratify=Y, test_size=0.25, random_state=0)
+
 def analyze(data):
     print(f"Length: {len(data)}")
     print(f'Loan Declines | Total {len(data.loc[data.Loan_Status == "N"])}',
@@ -83,20 +89,12 @@ def show(data):
     #sns.boxplot(data=data, orient="v", palette="Set2")
     plt.show()
 
-def partion(data):
-    X = data.drop('Loan_Status', axis=1)
-    Y = data['Loan_Status']
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y,
-                                                        stratify=Y, test_size=0.25, random_state=0)
-    print(len(X_train), len(X_test), len(Y_train), len(Y_test))
-
 def checkJoblib(file, model):
     try:
         return joblib.load(file)
     except:
         joblib.dump(model, file)
         return model
-
 
 def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
     """
@@ -119,56 +117,42 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
          plt.xlabel('Predicted label')
          plt.tight_layout()
 
-
-def Knearest(data):
-    X = data.drop('Loan_Status', axis=1)
-    Y = data['Loan_Status']
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y,
-                                                        stratify=Y, test_size=0.2, random_state=0)
-    report = pd.DataFrame(columns=['Model', 'Acc.Train', 'Acc.Test'])
+def Knearest(X_train, X_test, Y_train, Y_test):
+    # To find the optimal number of neighbors n, we try different n’s using a loop and print the results
+    accuracies = []
+    for n in range(1, 21):
+        knnmodel = KNeighborsClassifier(n_neighbors=n)
+        knnmodel.fit(X_train, Y_train)
+        Y_test_pred_ = knnmodel.predict(X_test)
+        accte_ = accuracy_score(Y_test, Y_test_pred_)
+        print(n, accte_)
+        accuracies.append(accte_)
 
     # To build the classifier
-    knnmodel = KNeighborsClassifier(n_neighbors=7)
+    opt_k = accuracies.index(max(accuracies)) + 1
+    knnmodel = KNeighborsClassifier(n_neighbors=opt_k)
     knnmodel.fit(X_train, Y_train)
-    Y_train_pred = knnmodel.predict(X_train)
+    return knnmodel
+
+def accuracy(X_train, X_test, Y_train, Y_test, model):
+    Y_train_pred = model.predict(X_train)
+    Y_test_pred = model.predict(X_test)
 
     # To examine the quality of the classifier we can calculate the confusion matrix (reference/prediction) and the accuracy
     cmtr = confusion_matrix(Y_train, Y_train_pred)
-    print("Confusion Matrix Training:\n", cmtr)
+    cmte = confusion_matrix(Y_test, Y_test_pred)
     acctr = accuracy_score(Y_train, Y_train_pred)
-    print("Accurray Training:", acctr)
+    accte = accuracy_score(Y_test, Y_test_pred)
+    print("Confusion Matrix Training:\n", cmtr)
+    print("Confusion Matrix Testing:\n", cmte)
 
     # To test the generalizability of the classifier, it must be applied to the test data
-    Y_test_pred = knnmodel.predict(X_test)
-    cmte = confusion_matrix(Y_test, Y_test_pred)
-    print("Confusion Matrix Testing:\n", cmte)
-    accte = accuracy_score(Y_test, Y_test_pred)
-    print("Accurray Test:", accte)
-    Y_test_pred = knnmodel.predict_proba(X_test)
-    #print(Y_test_pred)
 
-    # To find the optimal value for k, we try different k’s using a loop and print the results
-    accuracies = []
-    for k in range(1, 21):
-        knnmodel = KNeighborsClassifier(n_neighbors=k)
-        knnmodel.fit(X_train, Y_train)
-        Y_test_pred = knnmodel.predict(X_test)
-        accte = accuracy_score(Y_test, Y_test_pred)
-        print(k, accte)
-        accuracies.append(accte)
-
-    # in case of indifference (yes/no) which can appear with even numbers, the algorithm chooses the solution randomly
-
-    opt_k = accuracies.index(max(accuracies)) + 1
-    print('Optimal k =', opt_k)
-
-    accte = accuracy_score(Y_test, Y_test_pred)
+    report = pd.DataFrame(columns=['Model', 'Acc.Train', 'Acc.Test'])
     report.loc[len(report)] = ['k-NN', acctr, accte]
     print(report)
 
     ###########
-
-    Y_train_pred = knnmodel.predict(X_train)
     cmtr = confusion_matrix(Y_train, Y_train_pred)
     np.set_printoptions(precision=2)
     class_names = ['no', 'yes']
@@ -308,10 +292,7 @@ def Knearest(data):
     plt.title('Comparison of Accuracies (Gini)')
     plt.show()'''
 
-#print(data)
-
-#analyze(data)
-#show(data)
+### Execution
 
 # 1. Import data
 data = pd.read_csv("LoanPrediction.csv")
@@ -320,11 +301,13 @@ data = pd.read_csv("LoanPrediction.csv")
 data = clean(data)
 
 # 3. Split the data into train/test sets
+X_train, X_test, Y_train, Y_test = split(data, 'Loan_Status')
 
-# 4. Create a model
-Knearest(data)
-#Knearest(data)
-# 5. Train the model
+# 4. Create and train a model
+model = Knearest(X_train, X_test, Y_train, Y_test)
+
+# 5. Measure accuracy
+accuracy(X_train, X_test, Y_train, Y_test, model)
 # 6. Make predictions
 # 7. Evaluate and improve
 
