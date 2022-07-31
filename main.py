@@ -65,7 +65,7 @@ def clean(data):
 def split(data, target):
     X = data.drop(target, axis=1)
     Y = data['Loan_Status']
-    return train_test_split(X, Y, stratify=Y, test_size=0.25, random_state=0)
+    return train_test_split(X, Y, stratify=Y, test_size=0.23, random_state=0)
 
 def analyze(data):
     print(f"Length: {len(data)}")
@@ -125,7 +125,7 @@ def Knearest(X_train, X_test, Y_train, Y_test):
         knnmodel.fit(X_train, Y_train)
         Y_test_pred_ = knnmodel.predict(X_test)
         accte_ = accuracy_score(Y_test, Y_test_pred_)
-        print(n, accte_)
+        #print(n, accte_)
         accuracies.append(accte_)
 
     # To build the classifier
@@ -146,27 +146,41 @@ def accuracy(X_train, X_test, Y_train, Y_test, model):
     print("Confusion Matrix Training:\n", cmtr)
     print("Confusion Matrix Testing:\n", cmte)
 
-    # To test the generalizability of the classifier, it must be applied to the test data
+    lb_churn = LabelEncoder()
+    Y_test_code = lb_churn.fit_transform(Y_test)
+    Y_test_pred_code = lb_churn.fit_transform(Y_test_pred)
+    f1te = f1_score(Y_test_code, Y_test_pred_code)
 
-    report = pd.DataFrame(columns=['Model', 'Acc.Train', 'Acc.Test'])
-    report.loc[len(report)] = ['k-NN', acctr, accte]
+    report = pd.DataFrame(columns=['Model', 'Acc.Train', 'Acc.Test', 'F1.score'])
+    report.loc[len(report)] = ['k-NN', acctr, accte, f1te]
     print(report)
 
-    ###########
-    cmtr = confusion_matrix(Y_train, Y_train_pred)
     np.set_printoptions(precision=2)
     class_names = ['no', 'yes']
     plt.figure()
     plot_confusion_matrix(cmtr, classes=class_names, title='Confusion matrix KNN train')
     #plt.show()
 
-    lb_churn = LabelEncoder()
-    Y_test_code = lb_churn.fit_transform(Y_test)
-    Y_test_pred_code = lb_churn.fit_transform(Y_test_pred)
+    Y_probs = model.predict_proba(X_test)
+    print("Y_probs:", Y_probs[0:6, :])
+    Y_test_probs = np.array(np.where(Y_test == 1, 1, 0))
+    print("Y_test_probs:", Y_test_probs[0:6])
+    from sklearn.metrics import roc_curve
+    fpr, tpr, threshold = roc_curve(Y_test_probs, Y_probs[:, 1])
+    print("fpr:", fpr, "tpr:", tpr, "threshold:", threshold)
+    from sklearn.metrics import auc
+    roc_auc = auc(fpr, tpr)
+    print("roc and auc:", roc_auc)
 
+def user_input():
+    user_gender = input("What is your gender? (m/f) ")
+    user_married = input("Are you married? (y/n) ")
+    user_dependents = input("How many dependents do you have? (0, 1, 2 or 3+) ")
+    user_graduate = input("Do you have gratuated? (y/n) ")
+    user_self_employed = input("Are you self-employed? (y/n) ")
+    user_applicant_income = input("How high is your income? (y/n) ")
+    
 
-    f1te = f1_score(Y_test_code, Y_test_pred_code)
-    print(f1te)
 
 
 ### Execution
@@ -179,13 +193,21 @@ data = clean(data)
 
 # 3. Split the data into train/test sets
 X_train, X_test, Y_train, Y_test = split(data, 'Loan_Status')
+print(data.iloc[0])
 
 # 4. Create and train a model
 model = Knearest(X_train, X_test, Y_train, Y_test)
 
+
 # 5. Measure accuracy
-accuracy(X_train, X_test, Y_train, Y_test, model)
+#accuracy(X_train, X_test, Y_train, Y_test, model)
 # 6. Make predictions
+
+
+
+result = model.predict([[0,0,0,0,0.07,0,0.2,0.75,1,1,1]])
+print(result)
+
 # 7. Evaluate and improve
 
 '''
@@ -205,14 +227,7 @@ else:
 '''#####################'''
 
 '''
-# calculate f1 score
-from sklearn.preprocessing import LabelEncoder
-lb_churn = LabelEncoder()
-Y_test_code = lb_churn.fit_transform(Y_test)
-Y_test_pred_code = lb_churn.fit_transform(Y_test_pred)
-from sklearn.metrics import f1_score
-f1te = f1_score(Y_test_code, Y_test_pred_code)
-print("F1-score",f1te)
+
 
 # calculate ROC and AUC and plot the curve
 Y_probs = knnmodel.predict_proba(X_test)
