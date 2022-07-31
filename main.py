@@ -60,8 +60,6 @@ def show(data):
     #sns.boxplot(data=data, orient="v", palette="Set2")
     plt.show()
 
-
-
 def partion(data):
     X = data.drop('Loan_Status', axis=1)
     Y = data['Loan_Status']
@@ -73,7 +71,7 @@ def Knearest(data):
     X = data.drop('Loan_Status', axis=1)
     Y = data['Loan_Status']
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y,
-                                                        stratify=Y, test_size=0.25, random_state=0)
+                                                        stratify=Y, test_size=0.2, random_state=0)
     report = pd.DataFrame(columns=['Model', 'Acc.Train', 'Acc.Test'])
 
     # To build the classifier
@@ -115,6 +113,9 @@ def Knearest(data):
     report.loc[len(report)] = ['k-NN', acctr, accte]
     print(report)
 
+    '''#####################'''
+
+    '''
     # calculate f1 score
     from sklearn.preprocessing import LabelEncoder
     lb_churn = LabelEncoder()
@@ -192,7 +193,7 @@ def Knearest(data):
     plot_tree(etmodel, feature_names=list(X), filled=True, rounded=True, max_depth=4, fontsize=10)
     plt.show()
 
-    ''' # plot tree using graphviz
+    ##### # plot tree using graphviz
     import graphviz
     dot_data = sk.tree.export_graphviz(etmodel, out_file=None,
                                        feature_names=list(X),
@@ -201,13 +202,8 @@ def Knearest(data):
     graph = graphviz.Source(dot_data)
     graph.format = 'png'
     graph.render("Churn_entropy")
+    
     '''
-
-
-#print(data)
-
-#analyze(data)
-#show(data)
 
 # 1. Import data
 data = pd.read_csv("LoanPrediction.csv")
@@ -217,9 +213,9 @@ data = clean(data)
 
 # 3. Split the data into train/test sets
 
-
 # 4. Create a model
 Knearest(data)
+
 # 5. Train the model
 # 6. Make predictions
 # 7. Evaluate and improve
