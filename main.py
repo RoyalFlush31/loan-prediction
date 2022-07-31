@@ -203,7 +203,7 @@ model = Knearest(X_train, X_test, Y_train, Y_test)
 #accuracy(X_train, X_test, Y_train, Y_test, model)
 # 6. Make predictions
 
-result = model.predict([[0,0,0,0,0.07,0,0.2,0.75,1,1,1]])
+result = model.predict([[user_input()]])
 print(result)
 
 
