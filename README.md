@@ -21,4 +21,18 @@ The data to create the model is stored in the file "LoanPrediction.csv". It cont
 - Property_Area: Urban/ Semi Urban/ Rural 
 - Loan_Status: Loan approved (Y/N) 
 
+
+Group Work and Delivery:
+- Each group applies the methods and procedures which were subject of the teaching sessions.
+Depending on the project, different focuses have to be set, e.g. for some projects more data
+preparation for others more model optimization.
+- All necessary steps for the analysis should be performed in Python.
+- The group work should be documented, explained, and reasoned in a text document including
+code fragments that are relevant for understanding (see my Python manual for example).
+- Each group delivers the text document and the corresponding Python files due to the
+announced date.
+- The text document has a maximum of 40 pages including the figures and code fragments.
+- The applied methodology is more important for the evaluation than the model results.
+
+
 [Bot assignment.pdf](https://github.com/RoyalFlush31/loan-prediction/files/8828131/Bot.assignment.pdf)
