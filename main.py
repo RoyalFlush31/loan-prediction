@@ -164,8 +164,8 @@ def user_input(data, labelEncoder):
     user_dependents = input("How many dependents do you have? (0, 1, 2 or 3+) ")
     user_graduate = input("Do you have gratuated? (y/n) ")
     user_self_employed = input("Are you self-employed? (y/n) ")
-    user_applicant_income = int(input("How high is your income? (y/n) "))
-    user_coapplicant_income = int(input("How high is the income of your coapplicant? (y/n) "))
+    user_applicant_income = int(input("How high is your income? "))
+    user_coapplicant_income = int(input("How high is the income of your coapplicant? "))
     user_loan_amount = int(input("How much do you want to loan? "))
     user_loan_amount_term = int(input("How many years should your loan last? ")) * 12
     user_credit_history = input("Do you already have a credit history? (y/n) ")
@@ -256,7 +256,7 @@ else:
     pass
 
 # 5. Measure accuracy (USED FOR TESTING)
-accurancy_faq = input("Do you want to see the accurancy of this survey? (y/n)")
+accurancy_faq = input("Do you want to see the accurancy of this survey? (y/n) ")
 if accurancy_faq == "y":
     accuracy(X_train, X_test, Y_train, Y_test, model)
 else:
