@@ -8,7 +8,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import numpy as np
 import itertools
-from sklearn.tree import DecisionTreeClassifier
+
 
 ### Functions
 
@@ -89,13 +89,6 @@ def show(data):
     sns.pairplot(data, hue="Loan_Status")
     #sns.boxplot(data=data, orient="v", palette="Set2")
     plt.show()
-
-def checkJoblib(file, model):
-    try:
-        return joblib.load(file)
-    except:
-        joblib.dump(model, file)
-        return model
 
 def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
     """
@@ -229,6 +222,7 @@ def user_input(labelEncoder):
 
 def decisionTree(X_train, X_test, Y_train, Y_test):
     # find optimal max_depth
+    from sklearn.tree import DecisionTreeClassifier
     accuracies = np.zeros((2, 20), float)
     for k in range(0, 20):
         etmodel = DecisionTreeClassifier(criterion='entropy', random_state=0, max_depth=k + 1)
@@ -239,7 +233,7 @@ def decisionTree(X_train, X_test, Y_train, Y_test):
         Y_test_pred = etmodel.predict(X_test)
         accte = accuracy_score(Y_test, Y_test_pred)
         accuracies[1, k] = accte
-    '''
+
     plt.plot(range(1, 21), accuracies[0, :])
     plt.plot(range(1, 21), accuracies[1, :])
     plt.xlim(1, 20)
@@ -247,76 +241,10 @@ def decisionTree(X_train, X_test, Y_train, Y_test):
     plt.xlabel('Max_depth')
     plt.ylabel('Accuracy')
     plt.title('Comparison of Accuracies (Entropy)')
-    plt.show()'''
+    plt.show()
 
     etmodel = DecisionTreeClassifier(criterion='entropy', random_state=0, max_depth=5)
     etmodel.fit(X_train, Y_train)
-
-    return etmodel
-
-### Execution
-
-# 1. Import data
-data = pd.read_csv("LoanPrediction.csv")
-
-# 2. Clean the data
-data, labelEncoder = clean(data)
-
-# 3. Split the data into train/test sets
-X_train, X_test, Y_train, Y_test = split(data, 'Loan_Status')
-
-
-# 4. Create and train a model
-model = kNearest(X_train, X_test, Y_train, Y_test)
-
-
-#model = decisionTree(X_train, X_test, Y_train, Y_test)
-# 5. Measure accuracy
-#accuracy(X_train, X_test, Y_train, Y_test, model)
-# 6. Make predictions
-user_input(labelEncoder)
-#result = model.predict([[user_input(labelEncoder)]])
-#print(result)
-
-
-# 7. Evaluate and improve
-
-'''
-
-
-GN = str(input('Please enter if you want the Analysis performed Gender-Neutral? (Y/N)'))
-if GN == 'Y':
-    data = cleanGN(data)
-    Knearest(data)
-elif GN == 'N':
-    data = clean(data)
-    Knearest(data)
-else:
-    print('Input Error')
-'''
-
-'''#####################'''
-
-'''
-
-
-# calculate ROC and AUC and plot the curve
-Y_probs = knnmodel.predict_proba(X_test)
-print("Y_probs:", Y_probs[0:6, :])
-Y_test_probs = np.array(np.where(Y_test == 1, 1, 0))
-print("Y_test_probs:", Y_test_probs[0:6])
-from sklearn.metrics import roc_curve
-fpr, tpr, threshold = roc_curve(Y_test_probs, Y_probs[:, 1])
-print("fpr:",fpr, "tpr:", tpr,"threshold:", threshold)
-from sklearn.metrics import auc
-roc_auc = auc(fpr, tpr)
-print("roc and auc:",roc_auc)
-Y_train_pred_prob = etmodel.predict_proba(X_train)
-
-
-
-###### DECISION TREEE VIZ
-
 
     Y_train_pred = etmodel.predict(X_train)
     cmtr = confusion_matrix(Y_train, Y_train_pred)
@@ -328,6 +256,8 @@ Y_train_pred_prob = etmodel.predict_proba(X_train)
     print("Confusion Matrix Testing:\n", cmte)
     accte = accuracy_score(Y_test, Y_test_pred)
     print("Accurray Test:", accte)
+
+
     report.loc[len(report)] = ['Tree (Entropy)', acctr, accte]
 
     # plot tree
@@ -417,6 +347,74 @@ Y_train_pred_prob = etmodel.predict_proba(X_train)
     plt.bar(index, gtmodel.feature_importances_, bar_width)
     plt.xticks(index, list(X), rotation=90)  # labels get centered
     plt.show()
+
+    return etmodel
+
+### Execution
+
+# 1. Import data
+data = pd.read_csv("LoanPrediction.csv")
+
+# 2. Clean the data
+data, labelEncoder = clean(data)
+
+# 3. Split the data into train/test sets
+X_train, X_test, Y_train, Y_test = split(data, 'Loan_Status')
+
+
+# 4. Create and train a model
+model = kNearest(X_train, X_test, Y_train, Y_test)
+
+
+#model = decisionTree(X_train, X_test, Y_train, Y_test)
+# 5. Measure accuracy
+#accuracy(X_train, X_test, Y_train, Y_test, model)
+# 6. Make predictions
+user_input(labelEncoder)
+#result = model.predict([[user_input(labelEncoder)]])
+#print(result)
+
+
+# 7. Evaluate and improve
+
+'''
+
+
+GN = str(input('Please enter if you want the Analysis performed Gender-Neutral? (Y/N)'))
+if GN == 'Y':
+    data = cleanGN(data)
+    Knearest(data)
+elif GN == 'N':
+    data = clean(data)
+    Knearest(data)
+else:
+    print('Input Error')
+'''
+
+'''#####################'''
+
+'''
+
+
+# calculate ROC and AUC and plot the curve
+Y_probs = knnmodel.predict_proba(X_test)
+print("Y_probs:", Y_probs[0:6, :])
+Y_test_probs = np.array(np.where(Y_test == 1, 1, 0))
+print("Y_test_probs:", Y_test_probs[0:6])
+from sklearn.metrics import roc_curve
+fpr, tpr, threshold = roc_curve(Y_test_probs, Y_probs[:, 1])
+print("fpr:",fpr, "tpr:", tpr,"threshold:", threshold)
+from sklearn.metrics import auc
+roc_auc = auc(fpr, tpr)
+print("roc and auc:",roc_auc)
+Y_train_pred_prob = etmodel.predict_proba(X_train)
+
+
+
+###### DECISION TREEE VIZ
+
+
+    
 
 '''
 
