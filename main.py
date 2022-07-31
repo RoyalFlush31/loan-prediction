@@ -171,9 +171,13 @@ def accuracy(X_train, X_test, Y_train, Y_test, model):
     roc_auc = auc(fpr, tpr)
     print("roc and auc:", roc_auc)
 
+<<<<<<< HEAD
 def user_input(data, labelEncoder):
     print("Welcome to the FUTURE Bank AG. Fill out the survey to get an automated answer if you could likely receive a loan.")
     print("")
+=======
+def user_input(labelEncoder):
+>>>>>>> a82aeaf805fb63c1afcadfd596702d40724d5670
     '''
     user_gender = input("What is your gender? (m/f) ")
     user_married = input("Are you married? (y/n) ")
@@ -189,6 +193,7 @@ def user_input(data, labelEncoder):
     choice = [user_gender, user_married, user_dependents, user_graduate, user_self_employed, user_applicant_income,
               user_coapplicant_income, user_loan_amount, user_loan_amount_term, user_credit_history, user_property_area]
     '''
+<<<<<<< HEAD
     choice = [0, 0, '0', 1, 0, 10000, 0, 48, 60, 1, 'Urban']
 
     choice = pd.DataFrame([choice], columns=[
@@ -214,6 +219,11 @@ def user_input(data, labelEncoder):
 
     print("After", choice.iloc[0].values)
     return choice.values
+=======
+    #choice = np.array(["m", "y", 0, "y", "n", 6000, 0, 60, 360, "y", "Urban"])
+
+    #choice = labelEncoder.fit_transform(choice)
+>>>>>>> a82aeaf805fb63c1afcadfd596702d40724d5670
 
 def decisionTree(X_train, X_test, Y_train, Y_test):
     # find optimal max_depth
@@ -259,13 +269,14 @@ X_train, X_test, Y_train, Y_test = split(ndata, 'Loan_Status')
 
 
 # 4. Create and train a model
-model = kNearest(X_train, X_test, Y_train, Y_test)
+#model = kNearest(X_train, X_test, Y_train, Y_test)
 
 
-#model = decisionTree(X_train, X_test, Y_train, Y_test)
+model = decisionTree(X_train, X_test, Y_train, Y_test)
 # 5. Measure accuracy
-#accuracy(X_train, X_test, Y_train, Y_test, model)
+accuracy(X_train, X_test, Y_train, Y_test, model)
 # 6. Make predictions
+<<<<<<< HEAD
 choice = user_input(data, labelEncoder)
 result = int(model.predict(choice).item(0))
 
@@ -273,6 +284,11 @@ if result == 0:
     print("We are sorry to tell you that your application is not likey to become granted.")
 else:
     print("We are very delighted to tell you that your application is likey to become granted! Apply now on our Website!")
+=======
+
+result = model.predict([[user_input(labelEncoder)]])
+print(result)
+>>>>>>> a82aeaf805fb63c1afcadfd596702d40724d5670
 
 
 
