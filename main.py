@@ -201,7 +201,7 @@ def decisionTree(X_train, X_test, Y_train, Y_test):
         Y_test_pred = etmodel.predict(X_test)
         accte = accuracy_score(Y_test, Y_test_pred)
         accuracies[1, k] = accte
-    '''
+
     plt.plot(range(1, 21), accuracies[0, :])
     plt.plot(range(1, 21), accuracies[1, :])
     plt.xlim(1, 20)
@@ -209,7 +209,7 @@ def decisionTree(X_train, X_test, Y_train, Y_test):
     plt.xlabel('Max_depth')
     plt.ylabel('Accuracy')
     plt.title('Comparison of Accuracies (Entropy)')
-    plt.show()'''
+    plt.show()
 
     etmodel = DecisionTreeClassifier(criterion='entropy', random_state=0, max_depth=5)
     etmodel.fit(X_train, Y_train)
