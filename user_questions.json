@@ -1,0 +1,17 @@
+{
+  "welcome_text": "Welcome to BFF Finance AG! In order to apply for a home loan, please enter your information to assess your creditworthiness.",
+  "confirm_text": "We are delighted to tell you that you ARE creditworthy based on our evaluation criteria.",
+  "decline_text": "We are sorry to tell you that you are NOT creditworthy based on our evaluation criteria.",
+  "gender_neutral": "Do you want to conduct the application in a gender neutral way? (y/n) ",
+  "gender": "What is your gender? (m/f) ",
+  "married": "Are you married? (y/n) ",
+  "dependents": "How many dependents do you have? (0, 1, 2 or 3+) ",
+  "education": "Do you have gratuated? (y/n) ",
+  "self_empolyed": "Are you self-employed? (y/n) ",
+  "applicant_income": "How high is your income per month? ",
+  "coapplicant_income": "How high is the income of your coapplicant per month? ",
+  "loan_amount": "How much do you want to loan per month? ",
+  "loan_amount_term": "How many years should your loan last? ",
+  "credit_history": "Do you already have a credit history? (y/n) ",
+  "property_area": "Where do you live? (Rural, Semiurban, Urban) "
+}
