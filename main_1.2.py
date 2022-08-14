@@ -97,6 +97,9 @@ def clean(data):
 
     return data, lb_Mar
 
+#def preProcess(data):
+
+
 def split(data, target):
     X = data.drop(target, axis=1)
     Y = data['Loan_Status']
@@ -199,6 +202,7 @@ else:
 
 # 3. Normalize data
 ndata = (data - data.min()) / (data.max() - data.min())
+#ndata = (data - data.mean()) /data.std()
 
 # 4. Split the data into train/test sets
 X_train, X_test, Y_train, Y_test = split(ndata, 'Loan_Status')
@@ -209,7 +213,7 @@ param_grids = [{'n_neighbors': range(1,20)}, {'criterion': ['entropy', 'gini'], 
                {'max_depth': range(4, 8, 2), 'n_estimators': range(10, 210, 50)}, {},
                {'solver' : ['lbfgs', 'sgd'], 'hidden_layer_sizes': range(8, 20, 2)}]
 
-for i in range(4):
+for i in range(5):
     model = trainModel(X_train, Y_train, classifiers[i], param_grids[i])
     accuracy(X_train, X_test, Y_train, Y_test, model)
 #dTmodel = decisionTree(X_train, X_test, Y_train, Y_test)
