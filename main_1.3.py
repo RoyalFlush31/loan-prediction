@@ -49,7 +49,6 @@ def clean(data):
     data['Dependents'] = data['Dependents'].astype(np.float)
     data['Property_Area']= data['Property_Area'].replace(to_replace=["Urban", "Semiurban", "Rural"], value=[0, 1, 2])
     data = data.fillna(data.mean())
-    data = data.select_dtypes(exclude=['object'])
     return data
 
 def preProcess(data):
