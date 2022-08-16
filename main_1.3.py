@@ -16,27 +16,6 @@ from sklearn.neural_network import MLPClassifier
 
 
 ### Functions
-# Show data
-def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
-    if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
-    plt.title(title)
-    plt.colorbar()
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45)
-    plt.yticks(tick_marks, classes)
-    fmt = '.2f' if normalize else 'd'
-    thresh = cm.max() / 2.
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-         plt.text(j, i, format(cm[i, j], fmt),
-                horizontalalignment="center", fontsize=16, color="white" if cm[i, j] > thresh else "black")
-         plt.ylabel('True label')
-         plt.xlabel('Predicted label')
-         plt.tight_layout()
-    plt.show()
-
 # Prepare data
 def clean(data):
     data = data.drop(columns="Loan_ID")
@@ -67,8 +46,9 @@ def trainModel(X_train, Y_train, model, param_grid):
     model.fit(X_train, Y_train)
     return model
 
-# Evalualte models
+# Evaluate models
 def accuracy(X_train, X_test, Y_train, Y_test, model):
+    # Make predictions on train/test set
     Y_train_pred = model.predict(X_train)
     Y_test_pred = model.predict(X_test)
     model_name = model.__class__.__name__
@@ -79,6 +59,7 @@ def accuracy(X_train, X_test, Y_train, Y_test, model):
     acctr = accuracy_score(Y_train, Y_train_pred)
     accte = accuracy_score(Y_test, Y_test_pred)
 
+    # Calculate F1 score
     labelEncoder = LabelEncoder()
     Y_test_code = labelEncoder.fit_transform(Y_test)
     Y_test_pred_code = labelEncoder.fit_transform(Y_test_pred)
@@ -88,11 +69,32 @@ def accuracy(X_train, X_test, Y_train, Y_test, model):
     report.loc[len(report)] = [model_name, acctr, accte, f1score]
     #print(report)
 
-    #plot_confusion_matrix(cmtr, classes=['no', 'yes'], title=f'Train: Confusion matrix {model_name}')
-    #plot_confusion_matrix(cmte, classes=['no', 'yes'], title=f'Test: Confusion matrix {model_name}')
+    plot_confusion_matrix(cmtr, classes=['no', 'yes'], title=f'Train: Confusion matrix {model_name}')
+    plot_confusion_matrix(cmte, classes=['no', 'yes'], title=f'Test: Confusion matrix {model_name}')
     return f1score
 
-# Predict new data
+# Show data
+def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+         plt.text(j, i, format(cm[i, j], fmt),
+                horizontalalignment="center", fontsize=16, color="white" if cm[i, j] > thresh else "black")
+         plt.ylabel('True label')
+         plt.xlabel('Predicted label')
+         plt.tight_layout()
+    plt.show()
+
+# User function
 def user_input(data):
     user_gender = input(user_questions['gender'].iloc[0])
     user_married = input(user_questions['married'].iloc[0])
@@ -130,7 +132,6 @@ def user_input(data):
 
 
 ### Execution
-
 # 1. Import data
 data = pd.read_csv("LoanPrediction.csv")
 with open('user_questions.json') as json_file:
@@ -150,7 +151,7 @@ param_grids = [{'n_neighbors': range(1,20)}, {'criterion': ['entropy', 'gini'], 
                {'max_depth': range(4, 8, 2), 'n_estimators': range(10, 210, 50)}, {},
                {'solver' : ['lbfgs', 'sgd'], 'hidden_layer_sizes': range(8, 20, 2)}]
 bestScore = 0
-for i in range(4):
+for i in range(4): #disabled NN; reason: error codes, ususally underperforming scorewise; fix idea: scale data differently
     model = trainModel(X_train, Y_train, classifiers[i], param_grids[i])
     score = accuracy(X_train, X_test, Y_train, Y_test, model)
     if score > bestScore:
