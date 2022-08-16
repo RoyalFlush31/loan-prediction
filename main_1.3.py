@@ -150,7 +150,7 @@ param_grids = [{'n_neighbors': range(1,20)}, {'criterion': ['entropy', 'gini'], 
                {'max_depth': range(4, 8, 2), 'n_estimators': range(10, 210, 50)}, {},
                {'solver' : ['lbfgs', 'sgd'], 'hidden_layer_sizes': range(8, 20, 2)}]
 bestScore = 0
-for i in range(4):
+for i in range(5):
     model = trainModel(X_train, Y_train, classifiers[i], param_grids[i])
     score = accuracy(X_train, X_test, Y_train, Y_test, model)
     if score > bestScore:
